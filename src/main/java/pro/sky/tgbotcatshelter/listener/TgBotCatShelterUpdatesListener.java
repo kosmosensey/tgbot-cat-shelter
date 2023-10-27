@@ -28,8 +28,6 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
     @Autowired
     private TelegramBot telegramBot;
-    @Autowired
-
 
     @PostConstruct
     public void init() {

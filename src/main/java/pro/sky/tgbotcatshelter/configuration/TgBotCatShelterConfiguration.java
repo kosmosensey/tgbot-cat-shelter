@@ -14,9 +14,9 @@ public class TgBotCatShelterConfiguration {
 
     @Bean
     public TelegramBot telegramBot() {
-        TelegramBot bot = new TelegramBot(token);
-        bot.execute(new DeleteMyCommands());
-        return bot;
+        TelegramBot bot1 = new TelegramBot(token);
+        bot1.execute(new DeleteMyCommands());
+        return bot1;
     }
 
 }
