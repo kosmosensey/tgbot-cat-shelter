@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 
 import java.time.LocalDateTime;
 
-@Entity
+/*@Entity
 @Table(name="shelter_data")
 public class NotificationTask {
     @Id
@@ -52,4 +52,4 @@ public class NotificationTask {
     public void setExecDate(LocalDateTime execDate) {
         this.execDate = execDate;
     }
-}
+}*/
