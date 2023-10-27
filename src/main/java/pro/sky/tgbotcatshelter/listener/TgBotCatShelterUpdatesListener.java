@@ -2,7 +2,10 @@ package pro.sky.tgbotcatshelter.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
+import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
+import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
+import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.SendResponse;
 
@@ -28,8 +31,6 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
     @Autowired
     private TelegramBot telegramBot;
-    @Autowired
-
 
     @PostConstruct
     public void init() {
@@ -39,14 +40,53 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
-            String text = update.message().text();
-            Long chatId = update.message().chat().id();
-                      if ("/start".equalsIgnoreCase(text)) {
-                telegramBot.execute(new SendMessage(chatId, "Привет! Я бот-приюта для животных, " +
-                        "помогу тебе в выборе и получении необходимой информации"));
+            Message message = update.message();
+            String text;
+            Long chatId;
+            if (message != null) {
+                text = message.text();
+                chatId = message.chat().id();
+            } else if (update.callbackQuery() != null) {
+                text = update.callbackQuery().data();
+                chatId = update.callbackQuery().message().chat().id();
+            } else {
+                return;
+            }
+            logger.info(text);
+            if (text.equalsIgnoreCase("/start")) {
+                SendMessage send = new SendMessage(chatId, "Привет! Я бот-приюта для животных, " +
+                        "помогу тебе в выборе друга-питомца и получении необходимой информации" +
+                        "  В этом чате я смогу ответить на ваши вопросы 24/7");
+                telegramBot.execute(send);
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Приют для кошек").callbackData("/c1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Приют для собак").callbackData("/c2"));
+
+                SendMessage send2 = new SendMessage(chatId, "Выберите интересующий вас приют:")
+                        .replyMarkup(markup);
+                telegramBot.execute(send2);
+            } else if (text.equalsIgnoreCase("/c1")) {
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Узнать информацию о приюте").callbackData("/c1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Как взять животное из приюта").callbackData("/c2"));
+                markup.addRow(
+                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/c3"));
+                markup.addRow(
+                        new InlineKeyboardButton("Позвать волонтера ").callbackData("/c4"));
+
+                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
+                        .replyMarkup(markup);
+                telegramBot.execute(send);
+            } else {
+                SendMessage send1 = new SendMessage(chatId, "команда не определена");
+                telegramBot.execute(send1);
             }
         });
-        return UpdatesListener.CONFIRMED_UPDATES_ALL;
+            return UpdatesListener.CONFIRMED_UPDATES_ALL;
+        }
     }
 
-}
