@@ -62,7 +62,7 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
                 markup.addRow(
                         new InlineKeyboardButton("Приют для кошек").callbackData("/c1"));
                 markup.addRow(
-                        new InlineKeyboardButton("Приют для собак").callbackData("/c2"));
+                        new InlineKeyboardButton("Приют для собак").callbackData("/с2"));
 
                 SendMessage send2 = new SendMessage(chatId, "Выберите интересующий вас приют:")
                         .replyMarkup(markup);
@@ -70,13 +70,27 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
             } else if (text.equalsIgnoreCase("/c1")) {
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
                 markup.addRow(
-                        new InlineKeyboardButton("Узнать информацию о приюте").callbackData("/c1"));
+                        new InlineKeyboardButton("Узнать информацию о приюте кошек").callbackData("/сat1"));
                 markup.addRow(
-                        new InlineKeyboardButton("Как взять животное из приюта").callbackData("/c2"));
+                        new InlineKeyboardButton("Как взять животное из приюта кошек").callbackData("/сat2"));
                 markup.addRow(
-                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/c3"));
+                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/сat3"));
                 markup.addRow(
-                        new InlineKeyboardButton("Позвать волонтера ").callbackData("/c4"));
+                        new InlineKeyboardButton("Позвать волонтера приюта кошек").callbackData("/cat4"));
+
+                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
+                        .replyMarkup(markup);
+                telegramBot.execute(send);
+            } else if (text.equalsIgnoreCase("/с2")) {
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Узнать информацию о приюте для собак").callbackData("/d1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Как взять животное из приюта собак").callbackData("/d2"));
+                markup.addRow(
+                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/d3"));
+                markup.addRow(
+                        new InlineKeyboardButton("Позвать волонтера приюта собак").callbackData("/d4"));
 
                 SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
                         .replyMarkup(markup);
@@ -86,7 +100,7 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
                 telegramBot.execute(send1);
             }
         });
-            return UpdatesListener.CONFIRMED_UPDATES_ALL;
-        }
+        return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
+}
 
