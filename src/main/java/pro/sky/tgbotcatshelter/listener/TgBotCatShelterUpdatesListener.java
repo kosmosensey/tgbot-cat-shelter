@@ -37,6 +37,12 @@ public class TgBotCatShelterUpdatesListener implements UpdatesListener {
         telegramBot.setUpdatesListener(this);
     }
 
+    /**
+     * <u>Приветствие бота, выбор приюта и базовая информация</u>
+     * <br>
+     * @param updates сообщение от пользователя не может быть {@code  null}
+     * @return
+     */
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
