@@ -1,4 +1,6 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
-public interface UserServiceImpl {
+import pro.sky.tgbotcatshelter.service.UserService;
+
+public class UserServiceImpl implements UserService {
 }

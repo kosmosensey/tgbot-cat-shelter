@@ -1,4 +1,6 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
-public interface ShelterServiceImpl {
+import pro.sky.tgbotcatshelter.service.ShelterService;
+
+public class ShelterServiceImpl implements ShelterService {
 }
