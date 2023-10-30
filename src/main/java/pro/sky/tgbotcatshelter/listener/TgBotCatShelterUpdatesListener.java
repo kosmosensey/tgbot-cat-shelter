@@ -61,7 +61,20 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
             logger.info(text);
 
             if (text.equalsIgnoreCase("/start")) {
-                // Создаем клавиатуру с встроенными кнопками
+                SendMessage send = new SendMessage(chatId, "Привет! Я бот-приюта для животных, " +
+                        "помогу тебе в выборе друга-питомца и получении необходимой информации" +
+                        "  В этом чате я смогу ответить на ваши вопросы 24/7");
+                telegramBot.execute(send);
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Приют для кошек").callbackData("/c1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Приют для собак").callbackData("/с2"));
+
+                SendMessage send2 = new SendMessage(chatId, "Выберите интересующий вас приют:")
+                        .replyMarkup(markup);
+                telegramBot.execute(send2);
+            } else if (text.equalsIgnoreCase("/c1")) {
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
                 markup.addRow(
                         new InlineKeyboardButton("Узнать информацию о приюте кошек").callbackData("/сat1"));
@@ -99,3 +112,4 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 }
+
