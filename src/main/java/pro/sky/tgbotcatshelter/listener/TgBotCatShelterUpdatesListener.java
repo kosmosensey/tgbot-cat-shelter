@@ -7,7 +7,6 @@ import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
 import com.pengrad.telegrambot.request.SendMessage;
-
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,9 +30,13 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
     }
 
     /**
-     * Метод, обрабатывающий сообщения.
-     * @param updates Сообщения полученные телеграмм бот.
-     * @return Возвращает ответ в зависимости от сообщения или нажатой клавиши.
+     *
+     * <u>Приветствие бота, выбор приюта и базовая информация</u>
+     * <br>
+     * @param updates сообщение от пользователя не может быть {@code  null}
+     *                Если приходит неизвестная команда, пишет - "команда не определена"
+     *
+     * @return Бот отправляет ответ в зависимости от поступившей команды.
      */
     @Override
     public int process(List<Update> updates) {
@@ -60,18 +63,36 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
             if (text.equalsIgnoreCase("/start")) {
                 // Создаем клавиатуру с встроенными кнопками
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Узнать информацию о приюте кошек").callbackData("/сat1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Как взять животное из приюта кошек").callbackData("/сat2"));
+                markup.addRow(
+                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/сat3"));
+                markup.addRow(
+                        new InlineKeyboardButton("Позвать волонтера приюта кошек").callbackData("/cat4"));
 
-                markup.addRow(new InlineKeyboardButton("Узнать информацию о приюте").callbackData("/c1"));
-                markup.addRow(new InlineKeyboardButton("Как взять животное из приюта").callbackData("/c2"));
-                markup.addRow(new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/c3"));
-                markup.addRow(new InlineKeyboardButton("Позвать волонтера ").callbackData("/c4"));
-                SendMessage send = new SendMessage(chatId, """
-                        Здравствуйте!
-                        Вас приветствует бот приютов домашних животных.
-                        Выберете опцию для продолжения.""")
+                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
                         .replyMarkup(markup);
                 // Отправляем сообщение
                 telegramBot.execute(send);
+            } else if (text.equalsIgnoreCase("/с2")) {
+                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+                markup.addRow(
+                        new InlineKeyboardButton("Узнать информацию о приюте для собак").callbackData("/d1"));
+                markup.addRow(
+                        new InlineKeyboardButton("Как взять животное из приюта собак").callbackData("/d2"));
+                markup.addRow(
+                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/d3"));
+                markup.addRow(
+                        new InlineKeyboardButton("Позвать волонтера приюта собак").callbackData("/d4"));
+
+                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
+                        .replyMarkup(markup);
+                telegramBot.execute(send);
+            } else {
+                SendMessage send1 = new SendMessage(chatId, "команда не определена");
+                telegramBot.execute(send1);
             }
         });
         // Возвращаем подтверждение обработанных обновлений
