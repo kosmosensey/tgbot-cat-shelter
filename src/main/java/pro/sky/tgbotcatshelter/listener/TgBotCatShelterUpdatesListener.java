@@ -72,6 +72,7 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
                 SendMessage send2 = new SendMessage(chatId, "Выберите интересующий вас приют:")
                         .replyMarkup(markup);
+                // Отправляем сообщение send2
                 telegramBot.execute(send2);
             } else if (text.equalsIgnoreCase("/c1")) {
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
@@ -86,7 +87,7 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
                 SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
                         .replyMarkup(markup);
-                // Отправляем сообщение
+                // Отправляем сообщение send
                 telegramBot.execute(send);
             } else if (text.equalsIgnoreCase("/с2")) {
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
@@ -101,9 +102,11 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
                 SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
                         .replyMarkup(markup);
+                // Отправляем сообщение send
                 telegramBot.execute(send);
             } else {
                 SendMessage send1 = new SendMessage(chatId, "команда не определена");
+                // Отправляем сообщение send1 об ошибке
                 telegramBot.execute(send1);
             }
         });

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
+/**
+ * Животные
+ */
 @Entity
 @Table(name = "animals")
 public class Animal {

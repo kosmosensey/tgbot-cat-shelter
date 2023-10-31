@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 
 import java.util.Objects;
 
+/**
+ * Приюты
+ */
 @Entity
 @Table(name = "shelters")
 public class Shelter {
