@@ -30,12 +30,11 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
     }
 
     /**
-     *
      * <u>Приветствие бота, выбор приюта и базовая информация</u>
      * <br>
+     *
      * @param updates сообщение от пользователя не может быть {@code  null}
      *                Если приходит неизвестная команда, пишет - "команда не определена"
-     *
      * @return Бот отправляет ответ в зависимости от поступившей команды.
      */
     @Override
