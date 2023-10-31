@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class TelegramBotUpdatesListener implements UpdatesListener {
+public class TgBotCatShelterUpdatesListener implements UpdatesListener {
 
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
+    private Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot) {
+    public TgBotCatShelterUpdatesListener(TelegramBot telegramBot) {
         this.telegramBot = telegramBot;
     }
 
