@@ -24,8 +24,6 @@ public class User {
     private String phoneNumber;
     @Column(name = "car_number")
     private String carNumber;
-    @Column(name = "city")
-    private String city;
 
     public User(Long id,
                 Long telegram_id,
@@ -38,7 +36,6 @@ public class User {
         this.name = name;
         this.phoneNumber = phoneNumber;
         this.carNumber = carNumber;
-        this.city = city;
     }
 
     public Long getId() {
@@ -89,25 +86,17 @@ public class User {
         this.carNumber = carNumber;
     }
 
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(telegram_id, user.telegram_id) && Objects.equals(name, user.name) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(carNumber, user.carNumber) && Objects.equals(city, user.city);
+        return Objects.equals(id, user.id) && Objects.equals(telegram_id, user.telegram_id) && Objects.equals(name, user.name) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(carNumber, user.carNumber);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, telegram_id, name, phoneNumber, carNumber, city);
+        return Objects.hash(id, telegram_id, name, phoneNumber, carNumber);
     }
 
     @Override
@@ -118,7 +107,6 @@ public class User {
                 ", name='" + name + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", carNumber='" + carNumber + '\'' +
-                ", city='" + city + '\'' +
                 '}';
     }
 }
