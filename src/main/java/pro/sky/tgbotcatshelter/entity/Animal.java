@@ -1,6 +1,8 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
+import pro.sky.tgbotcatshelter.constants.AnimalSex;
+import pro.sky.tgbotcatshelter.constants.PetType;
 
 import java.util.Objects;
 
@@ -17,17 +19,17 @@ public class Animal {
     @Column(name = "name")
     private String name;
     @Column(name = "pet_type")
-    private String petType;
+    private PetType petType;
     @Column(name = "color")
     private String color;
     @Column(name = "sex")
-    private String sex;
+    private AnimalSex sex;
 
     public Animal(Long id,
                   String name,
-                  String petType,
+                  PetType petType,
                   String color,
-                  String sex) {
+                  AnimalSex sex) {
         this.id = id;
         this.name = name;
         this.petType = petType;
@@ -51,11 +53,11 @@ public class Animal {
         this.name = name;
     }
 
-    public String getPetType() {
+    public PetType getPetType() {
         return petType;
     }
 
-    public void setPetType(String petType) {
+    public void setPetType(PetType petType) {
         this.petType = petType;
     }
 
@@ -67,11 +69,11 @@ public class Animal {
         this.color = color;
     }
 
-    public String getSex() {
+    public AnimalSex getSex() {
         return sex;
     }
 
-    public void setSex(String sex) {
+    public void setSex(AnimalSex sex) {
         this.sex = sex;
     }
 

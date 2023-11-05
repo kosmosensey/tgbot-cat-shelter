@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static pro.sky.tgbotcatshelter.constants.Messages.*;
+
 /**
  * Обработчик сообщений телеграмм бота, от реализации UpdatesListener.
  */
@@ -60,9 +62,7 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
             logger.info(text);
 
             if (text.equalsIgnoreCase("/start")) {
-                SendMessage send = new SendMessage(chatId, "Привет! Я бот-приюта для животных, " +
-                        "помогу тебе в выборе друга-питомца и получении необходимой информации" +
-                        "  В этом чате я смогу ответить на ваши вопросы 24/7");
+                SendMessage send = new SendMessage(chatId, GREETINGS_NEW_USER);
                 telegramBot.execute(send);
                 InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
                 markup.addRow(

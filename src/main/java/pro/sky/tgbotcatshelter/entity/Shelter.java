@@ -1,6 +1,7 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
+import pro.sky.tgbotcatshelter.constants.ShelterType;
 
 import java.util.Objects;
 
@@ -31,11 +32,11 @@ public class Shelter {
     private String phoneSecurity;
 
     @Column(name = "shelter_type")
-    private String shelterType;
+    private ShelterType shelterType;
 
     public Shelter(long id, String addressShelter, String timeWork,
                    String drivingDirections, String phoneShelter,
-                   String phoneSecurity, String shelterType) {
+                   String phoneSecurity, ShelterType shelterType) {
         this.id = id;
         this.addressShelter = addressShelter;
         this.timeWork = timeWork;
@@ -93,11 +94,11 @@ public class Shelter {
         this.phoneSecurity = phoneSecurity;
     }
 
-    public String getShelterType() {
+    public ShelterType getShelterType() {
         return shelterType;
     }
 
-    public void setShelterType(String shelterType) {
+    public void setShelterType(ShelterType shelterType) {
         this.shelterType = shelterType;
     }
 
