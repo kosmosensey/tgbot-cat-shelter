@@ -34,6 +34,9 @@ public class Shelter {
     @Column(name = "shelter_type")
     private ShelterType shelterType;
 
+    public Shelter() {
+    }
+
     public Shelter(long id, String addressShelter, String timeWork,
                    String drivingDirections, String phoneShelter,
                    String phoneSecurity, ShelterType shelterType) {
