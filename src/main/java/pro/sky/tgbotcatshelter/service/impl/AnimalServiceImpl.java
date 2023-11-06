@@ -19,8 +19,9 @@ import java.util.Optional;
 @Service
 public class AnimalServiceImpl {
 
+    private final HashMap<Long, Animal> animals = new HashMap<>();
     private static final Logger logger = LoggerFactory.getLogger (AnimalServiceImpl.class);
-    private final AnimalRepository animalRepository;
+        private final AnimalRepository animalRepository;
 
     public AnimalServiceImpl(AnimalRepository animalRepository) {
         this.animalRepository = animalRepository;
@@ -50,5 +51,12 @@ public class AnimalServiceImpl {
             Optional.ofNullable(animal.getSex()).ifPresent(existingAnimal::setSex);
             return animalRepository.save(existingAnimal);
         }
+    public Animal remove(long id) {
+        logger.info("invoked method remove");
+        Animal existingAnimal = animalRepository.findById(id)
+                .orElseThrow(AnimalNotFoundException::new);
+        animalRepository.delete(existingAnimal);
+        return existingAnimal;
+    }
     }
 

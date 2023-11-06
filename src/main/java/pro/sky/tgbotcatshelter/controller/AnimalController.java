@@ -35,4 +35,9 @@ public class AnimalController {
     public  Animal create(@RequestBody Animal animal){
         return animalServiceimpl.create(animal);
     }
-}
+
+    @DeleteMapping("/{id}")
+    public Animal remove(@PathVariable("id") Long id){
+        return animalServiceimpl.remove(id);}
+    }
+
