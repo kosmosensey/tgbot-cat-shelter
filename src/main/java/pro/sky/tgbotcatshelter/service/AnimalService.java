@@ -15,4 +15,11 @@ public interface AnimalService {
 
     public Animal getById(Long id);
 
+    Collection<Animal> getAll();
+
+    Animal create(Animal animal);
+
+    Animal update(Long id, Animal animal);
+
+    Animal remove(long id);
 }
