@@ -25,6 +25,9 @@ public class Animal {
     @Column(name = "sex")
     private AnimalSex sex;
 
+    public Animal() {
+    }
+
     public Animal(Long id,
                   String name,
                   PetType petType,
