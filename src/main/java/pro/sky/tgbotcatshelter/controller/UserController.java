@@ -2,7 +2,6 @@ package pro.sky.tgbotcatshelter.controller;
 
 import org.springframework.web.bind.annotation.*;
 import pro.sky.tgbotcatshelter.entity.User;
-import pro.sky.tgbotcatshelter.service.UserService;
 import pro.sky.tgbotcatshelter.service.impl.UserServiceImpl;
 
 import java.util.Collection;
@@ -11,7 +10,7 @@ import java.util.Collection;
  * Контроллер пользователей
  */
 @RestController
-@RequestMapping("/user")
+@RequestMapping("/users")
 public class UserController {
     private UserServiceImpl userService;
 
@@ -38,6 +37,7 @@ public class UserController {
 
     @PutMapping("/{id}")
     public User update(@PathVariable("id") Long id, @RequestBody User user) {
+
         return userService.update(id, user);
     }
 

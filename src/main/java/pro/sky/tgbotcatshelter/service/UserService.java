@@ -9,12 +9,12 @@ import java.util.Collection;
  */
 public interface UserService {
 
-    void create();
-    void update();
+    User create(User user);
+    User update(Long id, User user);
 
-    void delete();
+    User delete(Long id);
 
     Collection<User> getAll();
 
-    void getById();
+    User getById(Long id);
 }
