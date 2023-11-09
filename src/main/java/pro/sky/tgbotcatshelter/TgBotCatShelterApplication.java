@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TgbotCatShelterApplication {
+public class TgBotCatShelterApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TgbotCatShelterApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TgBotCatShelterApplication.class, args);
+    }
 
 }
