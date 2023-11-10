@@ -15,7 +15,5 @@ public enum UserType {
         this.translationType = translationType;
     }
 
-    public String getTranslationColor() {
-        return translationType;
-    }
+
 }
