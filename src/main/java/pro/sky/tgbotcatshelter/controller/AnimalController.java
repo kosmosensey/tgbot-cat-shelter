@@ -25,7 +25,7 @@ public class AnimalController {
         return animalService.getAll();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/getById/{id}")
     public Animal getById(@PathVariable("id") Long id) {
         return animalService.getById(id);
     }

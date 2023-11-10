@@ -1,21 +1,19 @@
 package pro.sky.tgbotcatshelter.listener;
 
+import pro.sky.tgbotcatshelter.service.UserRequestService;
+
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
-import com.pengrad.telegrambot.model.request.InlineKeyboardButton;
-import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.request.SendMessage;
+
 import jakarta.annotation.PostConstruct;
+import lombok.SneakyThrows;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-
-import static pro.sky.tgbotcatshelter.constants.Messages.*;
 
 /**
  * Обработчик сообщений телеграмм бота, от реализации UpdatesListener.
@@ -24,7 +22,14 @@ import static pro.sky.tgbotcatshelter.constants.Messages.*;
 public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     @Autowired
-    private TelegramBot telegramBot;
+    private final TelegramBot telegramBot;
+    private final UserRequestService userRequestService;
+
+    public TgBotCatShelterUpdatesListener(TelegramBot telegramBot,
+                                          UserRequestService userRequestService) {
+        this.telegramBot = telegramBot;
+        this.userRequestService = userRequestService;
+    }
 
     @PostConstruct
     public void init() {
@@ -40,77 +45,24 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
      * @return Бот отправляет ответ в зависимости от поступившей команды.
      */
     @Override
+    @SneakyThrows
     public int process(List<Update> updates) {
-        updates.forEach(update -> {
-            Message message = update.message();
-            String text;
-            Long chatId;
-            if (message != null) {
-                // Если это текстовое сообщение
-                text = message.text();
-                chatId = message.chat().id();
-            } else if (update.callbackQuery() != null) {
-                // Если это обратный вызов (например, нажатие кнопки)
-                text = update.callbackQuery().data();
-                chatId = update.callbackQuery().message().chat().id();
-            } else {
-                // Игнорируем неизвестные типы обновлений
-                return;
-            }
 
-            // Логируем текст сообщения
-            logger.info(text);
+        try {
 
-            if (text.equalsIgnoreCase("/start")) {
-                SendMessage send = new SendMessage(chatId, GREETINGS_NEW_USER);
-                telegramBot.execute(send);
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                markup.addRow(
-                        new InlineKeyboardButton("Приют для кошек").callbackData("/c1"));
-                markup.addRow(
-                        new InlineKeyboardButton("Приют для собак").callbackData("/с2"));
+            updates.forEach(update -> {
+                logger.info("Handles update: {}", update);
 
-                SendMessage send2 = new SendMessage(chatId, "Выберите интересующий вас приют:")
-                        .replyMarkup(markup);
-                // Отправляем сообщение send2
-                telegramBot.execute(send2);
-            } else if (text.equalsIgnoreCase("/c1")) {
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                markup.addRow(
-                        new InlineKeyboardButton("Узнать информацию о приюте кошек").callbackData("/сat1"));
-                markup.addRow(
-                        new InlineKeyboardButton("Как взять животное из приюта кошек").callbackData("/сat2"));
-                markup.addRow(
-                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/сat3"));
-                markup.addRow(
-                        new InlineKeyboardButton("Позвать волонтера приюта кошек").callbackData("/cat4"));
+                if (update.message() == null) {
+                    userRequestService.createButtonClick(update);
 
-                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
-                        .replyMarkup(markup);
-                // Отправляем сообщение send
-                telegramBot.execute(send);
-            } else if (text.equalsIgnoreCase("/с2")) {
-                InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-                markup.addRow(
-                        new InlineKeyboardButton("Узнать информацию о приюте для собак").callbackData("/d1"));
-                markup.addRow(
-                        new InlineKeyboardButton("Как взять животное из приюта собак").callbackData("/d2"));
-                markup.addRow(
-                        new InlineKeyboardButton("Прислать отчет о питомце").callbackData("/d3"));
-                markup.addRow(
-                        new InlineKeyboardButton("Позвать волонтера приюта собак").callbackData("/d4"));
-
-                SendMessage send = new SendMessage(chatId, "Выберите один из вариантов:")
-                        .replyMarkup(markup);
-                // Отправляем сообщение send
-                telegramBot.execute(send);
-            } else {
-                SendMessage send1 = new SendMessage(chatId, "команда не определена");
-                // Отправляем сообщение send1 об ошибке
-                telegramBot.execute(send1);
-            }
-        });
-        // Возвращаем подтверждение обработанных обновлений
+                } else {
+                    userRequestService.sendMessageStart(update);
+                }
+            });
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 }
