@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
+				</dependency>
 
 		<dependency>
 			<groupId>org.liquibase</groupId>
@@ -65,6 +65,22 @@
 			<artifactId>telegrambots-spring-boot-starter</artifactId>
 			<version>6.8.0</version>
 		</dependency>
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-ui</artifactId>
+			<version>1.6.9</version>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.swagger.core.v3</groupId>
+			<artifactId>swagger-annotations</artifactId>
+			<version>2.2.18</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
