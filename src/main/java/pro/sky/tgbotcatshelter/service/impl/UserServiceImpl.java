@@ -31,7 +31,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void addUser(long telegramId, String userName, UserType userType, UserStatus userStatus) {
-        User newUser = new User(telegramId, userType, userStatus);
+        User newUser = new User(telegramId,userName, userType, userStatus);
         User user = userRepository.findByTelegramId(telegramId);
         if (user == null) {
             saveUser(newUser);

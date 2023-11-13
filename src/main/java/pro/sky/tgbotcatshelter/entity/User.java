@@ -56,6 +56,13 @@ public class User {
         this.userStatus = userStatus;
     }
 
+    public User(Long telegramId, String name, UserType userType, UserStatus userStatus) {
+        this.telegramId = telegramId;
+        this.name = name;
+        this.userType = userType;
+        this.userStatus = userStatus;
+    }
+
 
     public Long getId() {
         return id;
