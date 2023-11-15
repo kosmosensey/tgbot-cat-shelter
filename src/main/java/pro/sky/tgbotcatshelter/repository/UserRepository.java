@@ -7,6 +7,7 @@ import pro.sky.tgbotcatshelter.entity.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+    User findByTelegramId(long telegramId);
 
 
 }

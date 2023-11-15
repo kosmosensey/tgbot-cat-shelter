@@ -25,8 +25,6 @@ public class User {
     @Column(name = "car_number")
     private String carNumber;
 
-    public User() {
-    }
 
     public User(Long id,
                 Long telegram_id,

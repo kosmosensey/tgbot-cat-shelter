@@ -19,16 +19,8 @@ public class UserController {
     }
 
     @GetMapping
-    public Collection<User> getAll() {
+    public Collection<User> getAll() {return userService.getAll();}
 
-        return userService.getAll();
-    }
-
-    @GetMapping("/{id}")
-    public User getById(@PathVariable("id") Long id) {
-
-        return userService.getById(id);
-    }
 
     @PostMapping
     public User create(@RequestBody User user) {
@@ -43,6 +35,12 @@ public class UserController {
 
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
+
         userService.delete(id);
+    }
+
+    @GetMapping("/byTelegramId")
+    public User findByTelegramId(@RequestBody User user){
+        return userService.findUserByTelegramId(user.getTelegram_id());
     }
 }
