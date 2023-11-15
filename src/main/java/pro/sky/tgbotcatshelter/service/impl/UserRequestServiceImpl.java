@@ -24,7 +24,6 @@ import pro.sky.tgbotcatshelter.service.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -148,31 +147,14 @@ public class UserRequestServiceImpl implements UserRequestService {
         }
     }
 
+
     @Override
     public void updateUser(Update update) {
-        Message message = update.message();
-        Matcher matcher = pattern.matcher(message.text());
-        String fullName = matcher.group(1) + " " + matcher.group(2);
-        String phoneNumber = matcher.group(3);
-        long chatId = message.chat().id();
-        long telegramId = message.from().id();
-        String telegramNick = message.from().username();
-        User userByTelegramId = userService.findUserByTelegramId(telegramId);
-//        if (userByTelegramId != null) {
-//            Long userId = userByTelegramId.getId();
-//            User updateUser = new User(userId, fullName, UserType, UserStatus);
-//            User updatedUser = new User(telegramId, String , UserType , UserStatus );
-//            userService.addUser(userId, updatedUser);
-//            telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
-//        } else {
-//            User newUser = new User(telegramId, telegramNick, fullName, phoneNumber);
-//            userService.createUser(newUser);
-//            telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
-//        }
+
     }
 
     /**
-     * метод отвечает за загузку сообщений.
+     * метод отвечает за загрузку отчета от усыновителя.
      *
      * @param update
      * @param
@@ -276,23 +258,14 @@ public class UserRequestServiceImpl implements UserRequestService {
                             Пример:Иван 999-888-5555 A321AA""");
                     sendMessage(sendMessage);
                     break;
-//                case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
-
-//                    reportStateByChatId.put(chatId, UserType.ADOPTER);
-//                    SendMessage sendMessage1 = new SendMessage(chatId, """
-//                            Отправьте отчет о питомце:
-//                            - Фото питомца;
-//                            - Рацион питомца;
-//                            - Общее самочувствие и привыкание к новому мету;
-//                            - Изменение в поведении (если есть).""");
-//                    sendMessage(sendMessage1);
 
                         case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
                             telegramBot.execute(new SendMessage(chatId, """
-                        Отправь, пожалуйста, следующую информацию о животном:
-                        Рацион животного:
-                        Общее самочувствие и привыкание к новому месту:
-                        Изменение в поведении: отказ от старых привычек, приобретение новых:"""));
+                        Отправьте отчет о питомце::
+                        - Фото питомца;
+                            - Рацион питомца;
+                            - Общее самочувствие и привыкание к новому мету;
+                            - Изменение в поведении (если есть)."""));
                             reportStateByChatId.put(chatId, true);
 
                     break;
