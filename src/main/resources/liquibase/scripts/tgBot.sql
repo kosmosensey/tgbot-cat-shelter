@@ -56,3 +56,11 @@ CREATE TABLE reports
     link_picture          BYTEA, -- фото животного
     report_text           TEXT -- Текст отчёта от пользователя
 );
+
+-- Создание таблицы "report_users" для хранения информации об отчётах от пользователей
+CREATE TABLE report_users
+(
+    id                    BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор номера отчёта
+    text                  VARCHAR, -- Текст отчёта от пользователя
+    photo_path            VARCHAR -- ссылка НА фото животного
+);
