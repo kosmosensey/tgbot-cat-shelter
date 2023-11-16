@@ -5,29 +5,23 @@ import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.InlineKeyboardMarkup;
-import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
-import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
-import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.listener.TgBotCatShelterUpdatesListener;
 import pro.sky.tgbotcatshelter.service.InlineKeyboardMarkupService;
-import pro.sky.tgbotcatshelter.service.ReportUserService;
 import pro.sky.tgbotcatshelter.service.UserRequestService;
 import pro.sky.tgbotcatshelter.service.UserService;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
-
 
 /**
  * Сервис для обработки запросов от пользователей.
@@ -35,38 +29,27 @@ import static pro.sky.tgbotcatshelter.constants.Messages.*;
 @Service
 public class UserRequestServiceImpl implements UserRequestService {
 
-    private Map<Long, Boolean> reportStateByChatId = new HashMap<>();
-    private Map<Long, Boolean> updateUserInfoStateByChatId = new HashMap<>();
-    private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
     private final InlineKeyboardMarkupService inlineKeyboardMarkupService;
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
     private final UserService userService;
+    final Map<Long, UserType> reportStateByChatId = new HashMap<>();
     final Map<Long, UserType> userCatAndDogStateByChatId = new HashMap<>();
     private final Map<Long, String> stateByChatId = new HashMap<>();
-
-    private final ReportUserService reportUserService;
-
-
-
 
     /**
      * Конструктор класса.
      *
-     * @param
      * @param inlineKeyboardMarkupService сервис для создания inline-клавиатуры.
      * @param telegramBot                 бот для отправки сообщений.
      * @param userService                 сервис для работы с пользователями.
-     * @param reportUserService
      */
     public UserRequestServiceImpl(InlineKeyboardMarkupService inlineKeyboardMarkupService,
                                   TelegramBot telegramBot,
-                                  UserService userService,
-                                  ReportUserService reportUserService) {
+                                  UserService userService) {
         this.inlineKeyboardMarkupService = inlineKeyboardMarkupService;
         this.telegramBot = telegramBot;
         this.userService = userService;
-        this.reportUserService = reportUserService;
     }
 
     /**
@@ -83,14 +66,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         String userName = update.message().from().username();
         long telegramId = update.message().from().id();
 
-        if (Boolean.TRUE.equals(updateUserInfoStateByChatId.get(chatId))) {
-            updateUser(update);
-            updateUserInfoStateByChatId.remove(chatId);
-        } else if (Boolean.TRUE.equals(reportStateByChatId.get(chatId))) {
-            takeReportFromUser(update);
-            reportStateByChatId.remove(chatId);
-
-        } else if ("/start".equals(text)) {
+        if ("/start".equals(text)) {
 
             User user = userService.findUserByTelegramId(telegramId);
 
@@ -144,45 +120,6 @@ public class UserRequestServiceImpl implements UserRequestService {
         SendResponse sendResponse = telegramBot.execute(sendMessage);
         if (!sendResponse.isOk()) {
             logger.error("Error during sending message: {}", sendResponse.description());
-        }
-    }
-
-
-    @Override
-    public void updateUser(Update update) {
-
-    }
-
-    /**
-     * метод отвечает за загрузку отчета от усыновителя.
-     *
-     * @param update
-     * @param
-     */
-    @Override
-    public void takeReportFromUser(Update update) {
-        String reportText = update.message().caption();
-        GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
-        GetFileResponse response = telegramBot.execute(getFile);
-        String imageUrl = telegramBot.getFullFilePath(response.file());
-        Long chatId = update.message().chat().id();
-        long telegramId = update.message().from().id();
-        telegramBot.execute(new SendMessage(chatId, """
-                Отправь, пожалуйста, следующую информацию о животном:
-                Рацион животного:
-                Общее самочувствие и привыкание к новому месту:
-                Изменение в поведении: отказ от старых привычек, приобретение новых:"""));
-        if (imageUrl != null && reportText != null) {
-            ReportUser newReport = new ReportUser();
-            newReport.setText(reportText);
-            newReport.setPhotoPath(imageUrl);
-//            newReport.setTelegramId(telegramId); добавится телеграмАйди в отчете после рефаторинга
-            SendMessage message = new SendMessage(chatId, "Спасибо за отчёт, результат проверки узнаете в течение дня!");
-            telegramBot.execute(message);
-            reportUserService.createReportUser(newReport);
-        } else {
-            SendMessage message = new SendMessage(chatId, "Некорректный формат отчета!");
-            telegramBot.execute(message);
         }
     }
 
@@ -258,16 +195,16 @@ public class UserRequestServiceImpl implements UserRequestService {
                             Пример:Иван 999-888-5555 A321AA""");
                     sendMessage(sendMessage);
                     break;
+                case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
 
-                        case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
-                            telegramBot.execute(new SendMessage(chatId, """
-                        Отправьте отчет о питомце::
-                        - Фото питомца;
+                    reportStateByChatId.put(chatId, UserType.ADOPTER);
+                    SendMessage sendMessage1 = new SendMessage(chatId, """
+                            Отправьте отчет о питомце:
+                            - Фото питомца;
                             - Рацион питомца;
                             - Общее самочувствие и привыкание к новому мету;
-                            - Изменение в поведении (если есть)."""));
-                            reportStateByChatId.put(chatId, true);
-
+                            - Изменение в поведении (если есть).""");
+                    sendMessage(sendMessage1);
                     break;
                 case CLICK_RULES_REPORT_CAT, CLICK_RULES_REPORT_DOG:
                     sendMessage(chatId, """

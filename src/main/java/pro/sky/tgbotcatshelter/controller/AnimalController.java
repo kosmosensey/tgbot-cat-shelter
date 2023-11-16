@@ -1,10 +1,10 @@
 package pro.sky.tgbotcatshelter.controller;
-
 import org.springframework.web.bind.annotation.*;
 import pro.sky.tgbotcatshelter.entity.Animal;
 import pro.sky.tgbotcatshelter.service.AnimalService;
 import pro.sky.tgbotcatshelter.service.impl.AnimalServiceImpl;
-import org.springframework.web.bind.annotation.*;import java.util.Collection;
+import org.springframework.web.bind.annotation.*;
+import java.util.Collection;
 
 
 /**
