@@ -1,11 +1,9 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
-import pro.sky.tgbotcatshelter.*;
+import pro.sky.tgbotcatshelter.entity.User;
 
 import java.util.Collection;
 
@@ -56,7 +54,6 @@ public UserServiceImpl(UserRepository userRepository, ValidationService validati
         return existingUser;
     }
 
-    @Override
     public Collection<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();

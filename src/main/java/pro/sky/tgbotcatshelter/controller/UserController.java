@@ -12,14 +12,15 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private UserServiceImpl userService;
+    private final UserServiceImpl userService;
 
     public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
     @GetMapping
-    public Collection<User> getAll() {return userService.getAll();}
+    public Collection<User> getAll() {
+        return userService.getAll();}
 
 
     @PostMapping
@@ -41,6 +42,6 @@ public class UserController {
 
     @GetMapping("/byTelegramId")
     public User findByTelegramId(@RequestBody User user){
-        return userService.findUserByTelegramId(user.getTelegram_id());
+        return userService.findUserByTelegramId(user.getTelegramId());
     }
 }
