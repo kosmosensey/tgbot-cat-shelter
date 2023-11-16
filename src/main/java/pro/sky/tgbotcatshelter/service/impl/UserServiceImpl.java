@@ -1,14 +1,11 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
-import pro.sky.tgbotcatshelter.constants.UserType;
-import pro.sky.tgbotcatshelter.entity.User;
-import pro.sky.tgbotcatshelter.exception.ShelterNotFoundException;
-import pro.sky.tgbotcatshelter.exception.UserNotFoundException;
-import pro.sky.tgbotcatshelter.repository.UserRepository;
-import pro.sky.tgbotcatshelter.service.UserService;
+import pro.sky.tgbotcatshelter.*;
 
 import java.util.Collection;
 
@@ -18,16 +15,13 @@ import java.util.Collection;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    private final UserRepository userRepository;
+private final UserRepository userRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+private final ValidationService validationService;
+
+public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
         this.userRepository = userRepository;
-    }
-
-    @Override
-    public void addUser(long telegramId, String userName, UserType userType) {
-
+        this.validationService = validationService;
     }
 
     @Override
@@ -35,10 +29,6 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByTelegramId(telegramId);
     }
 
-    @Override
-    public void saveUser(User user) {
-
-    }
 
     @Override
     public User create(User user) {
@@ -70,6 +60,21 @@ public class UserServiceImpl implements UserService {
     public Collection<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();
+
+    public void addUser(long telegramId, String userName, UserType userType, UserStatus userStatus) {
+        User newUser = new User(telegramId,userName, userType, userStatus);
+        User user = userRepository.findByTelegramId(telegramId);
+        if (user == null) {
+            saveUser(newUser);
+        }
+    }
+      
+    @Override
+    public void saveUser(User user) {
+        if (!validationService.validate(user)) {
+            throw new ValidationException(user.toString());
+        }
+        userRepository.save(user);
     }
 }
 

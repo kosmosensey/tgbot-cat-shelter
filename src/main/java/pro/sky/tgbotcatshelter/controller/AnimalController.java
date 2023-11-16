@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;import java.util.Collection;
  * Контроллер животных
  */
 @RestController
-@RequestMapping( "/animals")
+@RequestMapping("/animals")
 
 public class AnimalController {
     private final AnimalService animalService;
@@ -25,12 +25,12 @@ public class AnimalController {
         return animalService.getAll();
     }
 
-    @GetMapping(params = "/{id}")
+    @GetMapping("/getById/{id}")
     public Animal getById(@PathVariable("id") Long id) {
         return animalService.getById(id);
     }
 
-    @PutMapping(params = "/{id}")
+    @PutMapping("/{id}")
     public Animal update(@PathVariable("id") Long id, @RequestBody Animal animal) {
         return animalService.update(id, animal);
     }
