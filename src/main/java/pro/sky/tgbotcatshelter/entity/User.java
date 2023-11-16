@@ -36,6 +36,7 @@ public class User {
     @Column(name = "user_status")
     private UserStatus userStatus;
 
+
     public User(Long id,
                 Long telegram_id,
                 String name,

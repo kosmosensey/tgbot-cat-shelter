@@ -1,13 +1,13 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import jakarta.validation.ValidationException;
 import org.springframework.stereotype.Service;
-import pro.sky.tgbotcatshelter.constants.UserStatus;
-import pro.sky.tgbotcatshelter.constants.UserType;
-import pro.sky.tgbotcatshelter.entity.User;
-import pro.sky.tgbotcatshelter.repository.UserRepository;
-import pro.sky.tgbotcatshelter.service.UserService;
-import pro.sky.tgbotcatshelter.service.ValidationService;
+import pro.sky.tgbotcatshelter.*;
+
+import java.util.Collection;
 
 /**
  * Бизнес-логика по работе с пользователем.
@@ -15,11 +15,11 @@ import pro.sky.tgbotcatshelter.service.ValidationService;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+private final UserRepository userRepository;
 
-    private final ValidationService validationService;
+private final ValidationService validationService;
 
-    public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
+public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
         this.userRepository = userRepository;
         this.validationService = validationService;
     }
@@ -29,7 +29,38 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByTelegramId(telegramId);
     }
 
+
     @Override
+    public User create(User user) {
+        logger.info("started method create");
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User update(Long id, User user) {
+        logger.info("started method update");
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(ShelterNotFoundException::new);
+        existingUser.setName(user.getName());
+        existingUser.setPhoneNumber(user.getPhoneNumber());
+        existingUser.setTelegram_id(id);
+        return userRepository.save(existingUser);
+    }
+
+    @Override
+    public User delete(Long id) {
+        logger.info("started method delete");
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(UserNotFoundException::new);
+        userRepository.delete(existingUser);
+        return existingUser;
+    }
+
+    @Override
+    public Collection<User> getAll() {
+        logger.info("started method getAll");
+        return userRepository.findAll();
+
     public void addUser(long telegramId, String userName, UserType userType, UserStatus userStatus) {
         User newUser = new User(telegramId,userName, userType, userStatus);
         User user = userRepository.findByTelegramId(telegramId);
@@ -37,6 +68,7 @@ public class UserServiceImpl implements UserService {
             saveUser(newUser);
         }
     }
+      
     @Override
     public void saveUser(User user) {
         if (!validationService.validate(user)) {
@@ -45,3 +77,4 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 }
+
