@@ -1,9 +1,17 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
-
 import jakarta.validation.ValidationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.tgbotcatshelter.constants.UserStatus;
+import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
+import pro.sky.tgbotcatshelter.exception.ShelterNotFoundException;
+import pro.sky.tgbotcatshelter.exception.UserNotFoundException;
+import pro.sky.tgbotcatshelter.repository.UserRepository;
+import pro.sky.tgbotcatshelter.service.UserService;
+import pro.sky.tgbotcatshelter.service.ValidationService;
 
 import java.util.Collection;
 
@@ -13,11 +21,13 @@ import java.util.Collection;
 @Service
 public class UserServiceImpl implements UserService {
 
-private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-private final ValidationService validationService;
+    private final ValidationService validationService;
 
-public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
+    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
+    public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
         this.userRepository = userRepository;
         this.validationService = validationService;
     }
@@ -26,7 +36,6 @@ public UserServiceImpl(UserRepository userRepository, ValidationService validati
     public User findUserByTelegramId(long telegramId) {
         return userRepository.findByTelegramId(telegramId);
     }
-
 
     @Override
     public User create(User user) {
@@ -41,7 +50,7 @@ public UserServiceImpl(UserRepository userRepository, ValidationService validati
                 .orElseThrow(ShelterNotFoundException::new);
         existingUser.setName(user.getName());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setTelegram_id(id);
+        existingUser.setTelegramId(id);
         return userRepository.save(existingUser);
     }
 
@@ -57,15 +66,17 @@ public UserServiceImpl(UserRepository userRepository, ValidationService validati
     public Collection<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();
+    }
 
+    @Override
     public void addUser(long telegramId, String userName, UserType userType, UserStatus userStatus) {
-        User newUser = new User(telegramId,userName, userType, userStatus);
+        User newUser = new User(telegramId, userName, userType, userStatus);
         User user = userRepository.findByTelegramId(telegramId);
         if (user == null) {
             saveUser(newUser);
         }
     }
-      
+
     @Override
     public void saveUser(User user) {
         if (!validationService.validate(user)) {
