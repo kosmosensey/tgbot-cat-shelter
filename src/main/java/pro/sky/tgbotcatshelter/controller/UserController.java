@@ -1,72 +1,54 @@
 package pro.sky.tgbotcatshelter.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.service.impl.UserServiceImpl;
 
 import java.util.Collection;
 
-/**
- * Контроллер для управления пользователями.
- * Предоставляет методы для получения, обновления, создания и удаления информации о пользователях.
- */
+// ... (existing imports)
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
     private final UserServiceImpl userService;
 
-    /**
-     * Конструктор класса UserController.
-     * @param userService сервис для работы с пользователями
-     */
     public UserController(UserServiceImpl userService) {
         this.userService = userService;
     }
 
-    /**
-     * Получение списка всех пользователей.
-     * @return список всех пользователей
-     */
+    @Operation(summary = "Get all users", description = "Retrieve a collection of all users.")
     @GetMapping
     public Collection<User> getAll() {
         return userService.getAll();
     }
 
-    /**
-     * Создание новой записи о пользователе.
-     * @param user информация о новом пользователе
-     * @return информация о созданном пользователе
-     */
+    @Operation(summary = "Create a user", description = "Create a new user.")
     @PostMapping
     public User create(@RequestBody User user) {
         return userService.create(user);
     }
 
-    /**
-     * Обновление информации о пользователе по его идентификатору.
-     * @param id идентификатор пользователя
-     * @param user новая информация о пользователе
-     * @return обновленная информация о пользователе
-     */
+    @Operation(summary = "Update user information", description = "Update user information based on ID.")
     @PutMapping("/{id}")
     public User update(@PathVariable("id") Long id, @RequestBody User user) {
         return userService.update(id, user);
     }
 
-    /**
-     * Удаление информации о пользователе по его идентификатору.
-     * @param id идентификатор пользователя для удаления
-     */
+    @Operation(summary = "Delete user", description = "Delete user information based on ID.")
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id) {
         userService.delete(id);
     }
 
-    /**
-     * Получение пользователя по его идентификатору в Telegram.
-     * @param user информация о пользователе (с идентификатором в Telegram)
-     * @return информация о пользователе с указанным идентификатором в Telegram
-     */
+    @Operation(summary = "Get user by Telegram ID", description = "Retrieve user information based on Telegram ID.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User found"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @GetMapping("/byTelegramId")
     public User findByTelegramId(@RequestBody User user){
         return userService.findUserByTelegramId(user.getTelegramId());
