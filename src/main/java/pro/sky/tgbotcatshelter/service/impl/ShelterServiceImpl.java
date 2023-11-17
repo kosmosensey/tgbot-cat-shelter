@@ -51,7 +51,7 @@ public class ShelterServiceImpl implements ShelterService {
             shelters.put(id, shelter);
             return shelter;
         }
-        return null; // Or handle differently based on your use case
+        return null; // Обрабатывается по-разному в зависимости от варианта использования
     }
 
     /**
