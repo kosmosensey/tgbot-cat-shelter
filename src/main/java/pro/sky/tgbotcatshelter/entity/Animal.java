@@ -7,7 +7,7 @@ import pro.sky.tgbotcatshelter.constants.PetType;
 import java.util.Objects;
 
 /**
- * Животные
+ * Класс, представляющий информацию о животном.
  */
 @Entity
 @Table(name = "animals")
@@ -16,23 +16,35 @@ public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "name")
     private String name;
+
     @Column(name = "pet_type")
     private PetType petType;
+
     @Column(name = "color")
     private String color;
+
     @Column(name = "sex")
     private AnimalSex sex;
 
+    /**
+     * Пустой конструктор для создания объекта Animal.
+     */
     public Animal() {
     }
 
-    public Animal(Long id,
-                  String name,
-                  PetType petType,
-                  String color,
-                  AnimalSex sex) {
+    /**
+     * Конструктор для создания объекта Animal с определенными параметрами.
+     *
+     * @param id      идентификатор животного
+     * @param name    имя животного
+     * @param petType тип животного (например, кошка, собака и т.д.)
+     * @param color   цвет животного
+     * @param sex     пол животного
+     */
+    public Animal(Long id, String name, PetType petType, String color, AnimalSex sex) {
         this.id = id;
         this.name = name;
         this.petType = petType;

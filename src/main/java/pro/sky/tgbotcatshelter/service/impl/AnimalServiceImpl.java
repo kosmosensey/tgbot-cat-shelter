@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Optional;
 
 /**
- * Бизнес-логика по работе с животными.
+ * Сервис, предоставляющий бизнес-логику для работы с данными о животных.
  */
 @Service
 public class AnimalServiceImpl implements AnimalService {
@@ -20,11 +20,18 @@ public class AnimalServiceImpl implements AnimalService {
     private static final Logger logger = LoggerFactory.getLogger(AnimalServiceImpl.class);
     private final AnimalRepository animalRepository;
 
+    // Конструктор, внедряющий зависимость от AnimalRepository
     public AnimalServiceImpl(AnimalRepository animalRepository) {
-
         this.animalRepository = animalRepository;
     }
 
+    /**
+     * Получает животное по его уникальному идентификатору.
+     *
+     * @param id Уникальный идентификатор животного.
+     * @return Найденное животное.
+     * @throws AnimalNotFoundException Если животное не найдено.
+     */
     @Override
     public Animal getById(Long id) {
         logger.info("invoked method getById");
@@ -32,18 +39,37 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(AnimalNotFoundException::new);
     }
 
+    /**
+     * Возвращает коллекцию всех животных.
+     *
+     * @return Коллекция всех животных.
+     */
     @Override
     public Collection<Animal> getAll() {
         logger.info("invoked method getAll");
         return animalRepository.findAll();
     }
 
+    /**
+     * Создает новое животное.
+     *
+     * @param animal Данные нового животного.
+     * @return Созданное животное.
+     */
     @Override
     public Animal create(Animal animal) {
         logger.info("invoked method create");
         return animalRepository.save(animal);
     }
 
+    /**
+     * Обновляет данные о существующем животном.
+     *
+     * @param id     Уникальный идентификатор животного.
+     * @param animal Обновленные данные о животном.
+     * @return Обновленное животное.
+     * @throws AnimalNotFoundException Если животное не найдено.
+     */
     @Override
     public Animal update(Long id, Animal animal) {
         logger.info("invoked method update");
@@ -56,6 +82,13 @@ public class AnimalServiceImpl implements AnimalService {
         return animalRepository.save(existingAnimal);
     }
 
+    /**
+     * Удаляет животное по его уникальному идентификатору.
+     *
+     * @param id Уникальный идентификатор животного.
+     * @return Удаленное животное.
+     * @throws AnimalNotFoundException Если животное не найдено.
+     */
     @Override
     public Animal remove(long id) {
         logger.info("invoked method remove");
@@ -65,4 +98,3 @@ public class AnimalServiceImpl implements AnimalService {
         return existingAnimal;
     }
 }
-

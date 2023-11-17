@@ -22,9 +22,7 @@ import java.util.Collection;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
     private final ValidationService validationService;
-
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
     public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
@@ -32,17 +30,20 @@ public class UserServiceImpl implements UserService {
         this.validationService = validationService;
     }
 
+    // Поиск пользователя по идентификатору Telegram
     @Override
     public User findUserByTelegramId(long telegramId) {
         return userRepository.findByTelegramId(telegramId);
     }
 
+    // Создание нового пользователя
     @Override
     public User create(User user) {
         logger.info("started method create");
         return userRepository.save(user);
     }
 
+    // Обновление информации о пользователе
     @Override
     public User update(Long id, User user) {
         logger.info("started method update");
@@ -54,6 +55,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.save(existingUser);
     }
 
+    // Удаление пользователя по идентификатору
     @Override
     public User delete(Long id) {
         logger.info("started method delete");
@@ -63,11 +65,13 @@ public class UserServiceImpl implements UserService {
         return existingUser;
     }
 
+    // Получение всех пользователей
     public Collection<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();
     }
 
+    // Добавление нового пользователя, если он еще не существует
     @Override
     public void addUser(long telegramId, String userName, UserType userType, UserStatus userStatus) {
         User newUser = new User(telegramId, userName, userType, userStatus);
@@ -77,6 +81,7 @@ public class UserServiceImpl implements UserService {
         }
     }
 
+    // Сохранение пользователя с проверкой валидности данных
     @Override
     public void saveUser(User user) {
         if (!validationService.validate(user)) {
@@ -85,4 +90,3 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
     }
 }
-

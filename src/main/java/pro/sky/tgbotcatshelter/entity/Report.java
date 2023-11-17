@@ -7,7 +7,9 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Objects;
 
-
+/**
+ * Класс, представляющий отчет о состоянии животного в приюте.
+ */
 @Entity
 @Table(name = "reports")
 public class Report {
@@ -35,6 +37,8 @@ public class Report {
 
     @Column(name = "link_picture")
     private byte[] picture;
+
+    // Конструкторы, геттеры, сеттеры, equals, hashCode и toString
 
     public Report(User userId,
                   LocalDate dateReport,

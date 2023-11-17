@@ -5,38 +5,54 @@ import lombok.NoArgsConstructor;
 import pro.sky.tgbotcatshelter.constants.ShelterType;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
-
 import java.util.Objects;
 
 /**
- * Пользователи
+ * Сущность, описывающая пользователя системы.
  */
 @Entity
 @NoArgsConstructor
 @Table(name = "users")
 public class User {
 
+    // Уникальный идентификатор пользователя
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    // ID пользователя в телеграмме
     @Column(name = "telegram_id")
     private Long telegramId;
+
+    // Имя пользователя
     @Column(name = "name")
     private String name;
+
+    // Адрес пользователя
     @Column(name = "address")
     private String address;
+
+    // Номер телефона пользователя
     @Column(name = "phone_number")
     private String phoneNumber;
+
+    // Номер автомобиля пользователя
     @Column(name = "car_number")
     private String carNumber;
+
+    // Тип приюта, к которому относится пользователь
     @Column(name = "shelter_type")
     private ShelterType shelterType;
+
+    // Тип пользователя (например, волонтёр или администратор)
     @Column(name = "user_type")
     private UserType userType;
+
+    // Статус пользователя (например, активен или заблокирован)
     @Column(name = "user_status")
     private UserStatus userStatus;
 
-
+    // Конструкторы
     public User(Long id,
                 Long telegram_id,
                 String name,
@@ -152,7 +168,11 @@ public class User {
                ", carNumber='" + carNumber + '\'' +
                '}';
     }
-
+    /**
+     * Метод устанавливает имя пользователя, проверяя его на корректность.
+     * @param name Имя пользователя.
+     * @throws RuntimeException если имя введено некорректно.
+     */
     public void setUserName(String name) {
 
         if (name.matches("^[a-zA-Zа-яА-Я]+$")
@@ -162,7 +182,11 @@ public class User {
             throw new RuntimeException("Имя введено некорректно");
         }
     }
-
+    /**
+     * Метод устанавливает номер телефона пользователя, форматируя его и проверяя на корректность.
+     * @param phoneNumber Номер телефона пользователя.
+     * @throws RuntimeException если номер телефона введен некорректно.
+     */
     public void setPhoneNumber(String phoneNumber) {
 
         phoneNumber = phoneNumber.replace("-", "");
@@ -177,7 +201,10 @@ public class User {
             throw new RuntimeException("Телефон слишком короткий");
         }
     }
-
+    /**
+     * Метод устанавливает номер автомобиля пользователя, если он указан.
+     * @param carNumber Номер автомобиля пользователя.
+     */
     public void setCarNumber(String carNumber) {
         if (carNumber == null || carNumber.isEmpty() || carNumber.isBlank()) {
             this.carNumber = "Без автомобиля";
