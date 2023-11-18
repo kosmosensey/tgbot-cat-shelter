@@ -25,7 +25,6 @@ public class TgBotCatShelterApplication {
             public void createReportUser(ReportUser reportUser) {
 
             }
-
             @Override
             public Collection<ReportUser> findAllReportUser() {
                 return null;
