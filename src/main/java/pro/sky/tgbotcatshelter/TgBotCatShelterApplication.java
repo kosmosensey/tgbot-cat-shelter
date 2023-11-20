@@ -18,7 +18,4 @@ public class TgBotCatShelterApplication {
     public static void main(String[] args) {
         SpringApplication.run(TgBotCatShelterApplication.class, args);
     }
-
-
-
 }

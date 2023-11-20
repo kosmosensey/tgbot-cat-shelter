@@ -25,6 +25,9 @@ import pro.sky.tgbotcatshelter.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
+
+import java.util.*;
+
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -105,6 +108,9 @@ public class UserRequestServiceImpl implements UserRequestService {
                 // Приветствие пользователя, уже записан в системе
                 greetingNotNewUser(chatId, userName);
             }
+            else if (user.getUserType() == UserType.VOLUNTEER && user.getUserStatus() == UserStatus.APPROVE) {
+                greetingVolunteer(chatId, userName);
+            }
         }
     }
 
@@ -148,13 +154,28 @@ public class UserRequestServiceImpl implements UserRequestService {
         }
     }
 
+
+    private void greetingVolunteer(long chatId, String name) {
+
+        SendMessage sendMessage =
+                new SendMessage(chatId, String.format(GREETING_VOLUNTEER, name));
+
+        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsShelterTypeSelect());
+        SendResponse sendResponse = telegramBot.execute(sendMessage);
+        if (!sendResponse.isOk()) {
+            logger.error("Error during sending message: {}", sendResponse.description());
+        }
+    }
+
+
+    /*TODO доработать Сергею метод на этой неделе
     /**
      * Метод, обновляющий поля пользователя в базе данных.<br>
      * <p>
      * #{@link UserService#editUser(Long, User)}<br>
      * #{@link UserService#create(User)}<br>
      */
-
+    
     @Override
     public void updateUser(Update update) {
         Message message = update.message();
@@ -549,6 +570,51 @@ public class UserRequestServiceImpl implements UserRequestService {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean checkVolunteer(Update update) {
+
+        if (update.message() == null)
+            return false;
+
+        long chatId = update.message().from().id();
+
+
+        if (!stateByChatId.containsKey(chatId))
+            return false;
+
+        String state = stateByChatId.get(chatId);
+        if (state == CLICK_CALL_A_VOLUNTEER) {
+            handleCallVolunteer(update);
+            stateByChatId.remove(chatId);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleCallVolunteer(Update update) {
+        Message message = update.message();
+        Long chatId = message.from().id();
+        long userId = update.message().from().id();
+        String text = message.text();
+        String name = message.from().username();
+
+
+        List<User> users = userService.getAllUsers();
+        List<User> volunteers = new ArrayList<User>();
+        for (User user : users) {
+            if (user.getUserType() == UserType.VOLUNTEER)
+                volunteers.add(user);
+        }
+
+        for (User volunteer : volunteers) {
+            telegramBot.execute(new SendMessage(volunteer.getTelegramId(), "Усыновитель " +
+                                                                           "" + '@' + name + " послал сообщение: " + text));
+        }
+
+        SendMessage message1 = new SendMessage(chatId, "Первый освободившийся волонтёр ответит вам в ближайшее время");
+        telegramBot.execute(message1);
     }
 
     // Отправляет сообщение с встроенной клавиатурой для выбора консультации как обустроить дом для собаки.

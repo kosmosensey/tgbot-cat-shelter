@@ -10,8 +10,12 @@ public class Messages {
             "Выберете, пожалуйста, вариант из предложенного меню!";
     public static final String GREETINGS_USER = """
             Здравствуйте! С возвращением""";
+    public static final String GREETING_VOLUNTEER = """
+            Приветствую. Вы зарегистрированы как волонтёр""";
+
     public static final String CALL_VOLUNTEER = """
-            Вы вызвали волонтера для связи. Волонтер сейчас свяжется с вами.""";
+            Вы вызвали волонтера для связи.
+            Напишите сообщение которое хотите передать волонтёру.""";
 
     public static final String GET_CONTACT_INFORMATION = """
             Спасибо за ваш запрос! Мы готовы помочь.

@@ -32,5 +32,5 @@ public interface UserRequestService {
     void sendMessageStart(Update update);
 
 
-
+    boolean checkVolunteer(Update update);
 }
