@@ -2,11 +2,10 @@ package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
 import pro.sky.tgbotcatshelter.constants.ShelterType;
-
 import java.util.Objects;
 
 /**
- * Приюты
+ * Сущность, представляющая информацию о приюте.
  */
 @Entity
 @Table(name = "shelters")
@@ -16,24 +15,35 @@ public class Shelter {
     @Column(name = "id")
     private long id;
 
+    // Адрес приюта
     @Column(name = "address_shelter")
     private String addressShelter;
 
+    // Время работы приюта
     @Column(name = "time_work")
     private String timeWork;
 
+    // Инструкции по проезду к приюту
     @Column(name = "driving_directions")
     private String drivingDirections;
 
+    // Телефон приюта
     @Column(name = "phone_shelter")
     private String phoneShelter;
 
+    // Телефон службы безопасности приюта
     @Column(name = "phone_security")
     private String phoneSecurity;
 
+    // Тип приюта
     @Column(name = "shelter_type")
     private ShelterType shelterType;
 
+    // Пустой конструктор для JPA
+    public Shelter() {
+    }
+
+    // Конструктор для создания объекта Shelter
     public Shelter(long id, String addressShelter, String timeWork,
                    String drivingDirections, String phoneShelter,
                    String phoneSecurity, ShelterType shelterType) {
