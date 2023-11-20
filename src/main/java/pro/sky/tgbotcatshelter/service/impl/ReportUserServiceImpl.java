@@ -1,15 +1,16 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
 import com.pengrad.telegrambot.model.Update;
-import org.junit.platform.commons.logging.LoggerFactory;
-import org.jvnet.hk2.annotations.Service;
 
+
+
+import org.springframework.stereotype.Service;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.repository.ReportUserRepository;
 import pro.sky.tgbotcatshelter.service.ReportUserService;
-
+import org.slf4j.Logger; import org.slf4j.LoggerFactory;
 import java.util.Collection;
-import java.util.logging.Logger;
+
 
 @Service
 public class ReportUserServiceImpl implements ReportUserService{
@@ -46,4 +47,6 @@ public class ReportUserServiceImpl implements ReportUserService{
     public void takeReportFromUser(Update update) {
         // Пока не реализовано
     }
+
+
 }

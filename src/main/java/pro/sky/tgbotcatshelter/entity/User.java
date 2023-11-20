@@ -80,6 +80,14 @@ public class User {
         this.userStatus = userStatus;
     }
 
+    public User(long telegramId, String name, String address, String carNumber, String phoneNumber) {
+        this.telegramId = telegramId;
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.carNumber = carNumber;
+    }
+
 
     public Long getId() {
         return id;

@@ -18,29 +18,7 @@ public class TgBotCatShelterApplication {
     public static void main(String[] args) {
         SpringApplication.run(TgBotCatShelterApplication.class, args);
     }
-    @Bean
-    public ReportUserService reportUserService(ReportUserRepository reportUserRepository) {
-        return new ReportUserService() {
-            @Override
-            public void createReportUser(ReportUser reportUser) {
 
-            }
 
-            @Override
-            public Collection<ReportUser> findAllReportUser() {
-                return null;
-            }
-
-            @Override
-            public ReportUser findReportUserById(long id) {
-                return null;
-            }
-
-            @Override
-            public void takeReportFromUser(Update update) {
-
-            }
-        };
-    }
 
 }
