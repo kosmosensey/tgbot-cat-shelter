@@ -16,13 +16,18 @@ import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.entity.User;
+import pro.sky.tgbotcatshelter.entity.Report;
 import pro.sky.tgbotcatshelter.listener.TgBotCatShelterUpdatesListener;
 import pro.sky.tgbotcatshelter.service.InlineKeyboardMarkupService;
 import pro.sky.tgbotcatshelter.service.ReportUserService;
 import pro.sky.tgbotcatshelter.service.UserRequestService;
 import pro.sky.tgbotcatshelter.service.UserService;
 
-import java.util.*;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -41,6 +46,7 @@ public class UserRequestServiceImpl implements UserRequestService {
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
     private final UserService userService;
+    private static Report checkReport;
     final Map<Long, UserType> userCatAndDogStateByChatId = new HashMap<>();
     private final Map<Long, String> stateByChatId = new HashMap<>();
 
@@ -540,6 +546,34 @@ public class UserRequestServiceImpl implements UserRequestService {
                 }
             }
         }
+    }
+    private void sendWarningMessage(Update update) {
+
+        Message message = update.callbackQuery().message();
+        String textMessage = "Дорогой усыновитель, мы заметили, " +
+                             "что ты заполняешь отчет не так подробно, как необходимо." +
+                             " Пожалуйста, подойди ответственнее к этому занятию. " +
+                             "В противном случае волонтеры приюта будут обязаны самолично " +
+                             "проверять условия содержания животного";
+        long userId = message.from().id();
+
+        LocalDate date = LocalDate.now();
+    }
+
+    @Override
+    public boolean checkReport(Update update) {
+
+        if (update.message() == null)
+            return false;
+
+        long chatId = update.message().from().id();
+
+        if (reportStateByChatId.containsKey(chatId)) {
+            takeReportFromUser(update);
+            reportStateByChatId.remove(chatId);
+            return true;
+        }
+        return false;
     }
 
     @Override
