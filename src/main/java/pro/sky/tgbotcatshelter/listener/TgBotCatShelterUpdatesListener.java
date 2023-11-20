@@ -59,6 +59,9 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
                 } else {
                     userRequestService.sendMessageStart(update);
                 }
+                if (userRequestService.checkVolunteer(update)) {
+                    return;
+                }
             });
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

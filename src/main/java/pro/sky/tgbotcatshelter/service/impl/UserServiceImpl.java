@@ -13,7 +13,7 @@ import pro.sky.tgbotcatshelter.repository.UserRepository;
 import pro.sky.tgbotcatshelter.service.UserService;
 import pro.sky.tgbotcatshelter.service.ValidationService;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Бизнес-логика по работе с пользователем.
@@ -28,6 +28,11 @@ public class UserServiceImpl implements UserService {
     public UserServiceImpl(UserRepository userRepository, ValidationService validationService) {
         this.userRepository = userRepository;
         this.validationService = validationService;
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.getAllUsers();
     }
 
     // Поиск пользователя по идентификатору Telegram
@@ -66,7 +71,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // Получение всех пользователей
-    public Collection<User> getAll() {
+    public List<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();
     }
