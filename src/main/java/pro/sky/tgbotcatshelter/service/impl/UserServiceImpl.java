@@ -94,4 +94,9 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(user);
     }
+
+    @Override
+    public void editUser(Long userId, User updatedUser) {
+
+    }
 }

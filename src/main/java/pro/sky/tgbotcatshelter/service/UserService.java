@@ -25,5 +25,9 @@ public interface UserService {
 
     void saveUser(User user);
 
+
+    void editUser(Long userId, User updatedUser);
+
     List<User> getAllUsers();
+
 }

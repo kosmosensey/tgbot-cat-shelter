@@ -61,6 +61,7 @@ CREATE TABLE reports
 CREATE TABLE report_users
 (
     id                    BIGSERIAL PRIMARY KEY, -- Уникальный идентификатор номера отчёта
-    text                  VARCHAR, -- Текст отчёта от пользователя
-    photo_path            VARCHAR -- ссылка НА фото животного
+    photo_path            VARCHAR, -- ссылка НА фото животного
+    report_text           VARCHAR, -- Текст отчёта от пользователя
+    telegram_id           BIGINT   NOT NULL -- Идентификатор пользователя в Telegram
 );

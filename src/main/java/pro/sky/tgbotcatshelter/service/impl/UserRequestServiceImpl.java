@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -40,7 +41,7 @@ public class UserRequestServiceImpl implements UserRequestService {
 
     private Map<Long, Boolean> reportStateByChatId = new HashMap<>();
     private Map<Long, Boolean> updateUserInfoStateByChatId = new HashMap<>();
-    private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
+    private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
     private final InlineKeyboardMarkupService inlineKeyboardMarkupService;
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
@@ -154,6 +155,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         }
     }
 
+
     private void greetingVolunteer(long chatId, String name) {
 
         SendMessage sendMessage =
@@ -167,9 +169,40 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
 
+    /*TODO доработать Сергею метод на этой неделе
+    /**
+     * Метод, обновляющий поля пользователя в базе данных.<br>
+     * <p>
+     * #{@link UserService#editUser(Long, User)}<br>
+     * #{@link UserService#create(User)}<br>
+     */
+    
     @Override
     public void updateUser(Update update) {
-
+        Message message = update.message();
+        Matcher matcher = pattern.matcher(message.text());
+        long chatId = message.chat().id();
+        long telegramId = message.from().id();
+        if (matcher.find()) {
+            String name = matcher.group(1) + " " + matcher.group(2);
+            String address = matcher.group(3);
+            String carNumber = matcher.group(4);
+            String phoneNumber = matcher.group(5);
+            User userByTelegramId = userService.findUserByTelegramId(telegramId);
+            if (userByTelegramId != null) {
+                Long userId = userByTelegramId.getId();
+                User updatedUser = new User(telegramId, name, address, carNumber, phoneNumber);
+                userService.editUser(userId, updatedUser);
+                telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
+            } else {
+                User user = new User(telegramId, name, address, carNumber, phoneNumber);
+                userService.create(user);
+                telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
+            }
+            updateUserInfoStateByChatId.remove(chatId);
+        } else {
+            telegramBot.execute(new SendMessage(chatId, "Некорректный формат ввода! Попробуй ещё раз"));
+        }
     }
 
     /**
@@ -178,30 +211,23 @@ public class UserRequestServiceImpl implements UserRequestService {
      * @param update
      * @param
      */
-    @Override
     public void takeReportFromUser(Update update) {
-        String reportText = update.message().caption();
-        GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
-        GetFileResponse response = telegramBot.execute(getFile);
-        String imageUrl = telegramBot.getFullFilePath(response.file());
         Long chatId = update.message().chat().id();
         long telegramId = update.message().from().id();
-        telegramBot.execute(new SendMessage(chatId, """
-                Отправь, пожалуйста, следующую информацию о животном:
-                Рацион животного:
-                Общее самочувствие и привыкание к новому месту:
-                Изменение в поведении: отказ от старых привычек, приобретение новых:"""));
-        if (imageUrl != null && reportText != null) {
-            ReportUser newReport = new ReportUser();
-            newReport.setText(reportText);
-            newReport.setPhotoPath(imageUrl);
-//            newReport.setTelegramId(telegramId); добавится телеграмАйди в отчете после рефаторинга
+        if (update.message().caption() == null || update.message().photo() == null) {
+            SendMessage message = new SendMessage(chatId, "Некорректный формат отчета! Попробуй ещё раз");
+            telegramBot.execute(message);
+        } else {
+            String reportText = update.message().caption();
+            GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
+            GetFileResponse response = telegramBot.execute(getFile);
+            String photoPath = telegramBot.getFullFilePath(response.file());
+            ReportUser reportUser = new ReportUser(photoPath, reportText, telegramId);
+
             SendMessage message = new SendMessage(chatId, "Спасибо за отчёт, результат проверки узнаете в течение дня!");
             telegramBot.execute(message);
-            reportUserService.createReportUser(newReport);
-        } else {
-            SendMessage message = new SendMessage(chatId, "Некорректный формат отчета!");
-            telegramBot.execute(message);
+            reportUserService.createReportUser(reportUser);
+            reportStateByChatId.remove(chatId);
         }
     }
 
