@@ -39,6 +39,7 @@ public class Messages {
     public static final String CLICK_CAT_SHELTER_INFO = "click_Cat_Shelter_Info";
     public static final String CLICK_HOW_TO_ADOPT_A_CAT = "click_How_To_Adopt_A_Cat";
     public static final String CLICK_SEND_A_CAT_REPORT = "click_Send_A_Cat_Report";
+    public static final String CLICK_SEE_ALL_ANIMAL_CAT = "click_See_All_Animal_Cat";
     public static final String CLICK_CAT_SHELTER_OVERVIEW = "click_Cat_Shelter_Overview";
     public static final String CLICK_CAR_PASS_CAT = "click_Car_Pass_Cat";
     public static final String CLICK_SAFETY_PRECAUTIONS_CAT = "click_Safety_Cat";
@@ -60,6 +61,7 @@ public class Messages {
     public static final String CLICK_DOG_SHELTER = "click_Dog_Shelter";
     public static final String CLICK_DOG_SHELTER_INFO = "click_Dog_Shelter_Info";
     public static final String CLICK_HOW_TO_ADOPT_A_DOG = "click_How_To_Adopt_A_Dog";
+    public static final String CLICK_SEE_ALL_ANIMAL_DOG = "click_See_All_Animal_Dog";
     public static final String CLICK_SEND_A_DOG_REPORT = "click_Send_A_Dog_Report";
     public static final String CLICK_DOG_SHELTER_OVERVIEW = "click_Dog_Shelter_Overview";
     public static final String CLICK_CAR_PASS_DOG = "click_Car_Pass_Dog";

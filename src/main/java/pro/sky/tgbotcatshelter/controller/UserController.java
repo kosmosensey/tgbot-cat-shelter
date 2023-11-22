@@ -9,7 +9,6 @@ import pro.sky.tgbotcatshelter.service.impl.UserServiceImpl;
 
 import java.util.Collection;
 
-// ... (existing imports)
 
 @RestController
 @RequestMapping("/users")
