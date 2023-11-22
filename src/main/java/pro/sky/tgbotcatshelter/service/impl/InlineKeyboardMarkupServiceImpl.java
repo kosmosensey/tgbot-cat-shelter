@@ -31,6 +31,8 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_HOW_TO_ADOPT_A_CAT));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить отчет о питомце")
                 .callbackData(CLICK_SEND_A_CAT_REPORT));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Посмотреть список всех котиков")
+                .callbackData(CLICK_SEE_ALL_ANIMAL_CAT));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера")
                 .callbackData(CLICK_CALL_A_VOLUNTEER));
 
@@ -47,6 +49,8 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_HOW_TO_ADOPT_A_DOG));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить отчет о питомце")
                 .callbackData(CLICK_SEND_A_DOG_REPORT));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Посмотреть список всех собачек")
+                .callbackData(CLICK_SEE_ALL_ANIMAL_DOG));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера")
                 .callbackData(CLICK_CALL_A_VOLUNTEER));
 

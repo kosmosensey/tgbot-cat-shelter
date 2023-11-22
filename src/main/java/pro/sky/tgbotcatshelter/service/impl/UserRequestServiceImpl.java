@@ -12,16 +12,15 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.tgbotcatshelter.constants.PetType;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
+import pro.sky.tgbotcatshelter.entity.Animal;
+import pro.sky.tgbotcatshelter.entity.Report;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.entity.User;
-import pro.sky.tgbotcatshelter.entity.Report;
 import pro.sky.tgbotcatshelter.listener.TgBotCatShelterUpdatesListener;
-import pro.sky.tgbotcatshelter.service.InlineKeyboardMarkupService;
-import pro.sky.tgbotcatshelter.service.ReportUserService;
-import pro.sky.tgbotcatshelter.service.UserRequestService;
-import pro.sky.tgbotcatshelter.service.UserService;
+import pro.sky.tgbotcatshelter.service.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,12 +46,11 @@ public class UserRequestServiceImpl implements UserRequestService {
     private final TelegramBot telegramBot;
     private final UserService userService;
     private static Report checkReport;
+    private final AnimalService animalService;
     final Map<Long, UserType> userCatAndDogStateByChatId = new HashMap<>();
     private final Map<Long, String> stateByChatId = new HashMap<>();
 
     private final ReportUserService reportUserService;
-
-
 
 
     /**
@@ -62,15 +60,17 @@ public class UserRequestServiceImpl implements UserRequestService {
      * @param inlineKeyboardMarkupService сервис для создания inline-клавиатуры.
      * @param telegramBot                 бот для отправки сообщений.
      * @param userService                 сервис для работы с пользователями.
+     * @param animalService
      * @param reportUserService
      */
     public UserRequestServiceImpl(InlineKeyboardMarkupService inlineKeyboardMarkupService,
                                   TelegramBot telegramBot,
                                   UserService userService,
-                                  ReportUserService reportUserService) {
+                                  AnimalService animalService, ReportUserService reportUserService) {
         this.inlineKeyboardMarkupService = inlineKeyboardMarkupService;
         this.telegramBot = telegramBot;
         this.userService = userService;
+        this.animalService = animalService;
         this.reportUserService = reportUserService;
     }
 
@@ -108,8 +108,7 @@ public class UserRequestServiceImpl implements UserRequestService {
             } else if (user.getUserType() == UserType.DEFAULT && user.getUserStatus() == UserStatus.APPROVE) {
                 // Приветствие пользователя, уже записан в системе
                 greetingNotNewUser(chatId, userName);
-            }
-            else if (user.getUserType() == UserType.VOLUNTEER && user.getUserStatus() == UserStatus.APPROVE) {
+            } else if (user.getUserType() == UserType.VOLUNTEER && user.getUserStatus() == UserStatus.APPROVE) {
                 greetingVolunteer(chatId, userName);
             }
         }
@@ -260,6 +259,15 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(sendMessage);
                     break;
                 }
+                case CLICK_SEE_ALL_ANIMAL_CAT: {
+                    List<Animal> catAnimals = animalService.getAllAnimalsByType(PetType.CAT);
+                    sendAnimalsToUser(chatId, catAnimals);
+                }
+                case CLICK_SEE_ALL_ANIMAL_DOG: {
+                    List<Animal> dogAnimals = animalService.getAllAnimalsByType(PetType.DOG);
+                    sendAnimalsToUser(chatId, dogAnimals);
+                    break;
+                }
                 case CLICK_ARRANGEMENT_CAT_HOME:
 
                     getCatAtHomeClick(chatId);
@@ -279,14 +287,14 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(sendMessage);
                     break;
 
-                        case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
-                            telegramBot.execute(new SendMessage(chatId, """
-                        Отправьте отчет о питомце::
-                        - Фото питомца;
-                            - Рацион питомца;
-                            - Общее самочувствие и привыкание к новому мету;
-                            - Изменение в поведении (если есть)."""));
-                            reportStateByChatId.put(chatId, true);
+                case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
+                    telegramBot.execute(new SendMessage(chatId, """
+                            Отправьте отчет о питомце::
+                            - Фото питомца;
+                                - Рацион питомца;
+                                - Общее самочувствие и привыкание к новому мету;
+                                - Изменение в поведении (если есть)."""));
+                    reportStateByChatId.put(chatId, true);
 
                     break;
                 case CLICK_RULES_REPORT_CAT, CLICK_RULES_REPORT_DOG:
@@ -453,7 +461,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                             Используйте позитивные сигналы: Используйте мягкий голос, улыбку и легкое похлопывание, чтобы создать положительное первое впечатление.
                                                         
                             Слушайте сигналы собаки: Внимательно следите за поведением собаки, реагируйте на ее настроение, и уважайте ее личное пространство.
-                            
+                                                        
                             За более подробной консультацией обращайтесь к специалистам.
                             Дополнительный забавный материал который может ответить на веши вопросы: https://youtu.be/dGLOfSH18ms?si=JXDPUB1_H7Yfbsh4""";
                     InlineKeyboardMarkup buttons = new InlineKeyboardMarkup();
@@ -464,10 +472,10 @@ public class UserRequestServiceImpl implements UserRequestService {
                     String text = """
                             Консультация военных кинологов:
                             https://masterdog.ru/konsultatsiya-kinologa
-                            
+                                                        
                             Консультация Московских кинологов:
                             https://guldog.ru/consultation
-                            
+                                                        
                             Кинологи нашего города:
                             https://k-9.kz/nursultan_kcentre/lp/""";
                     InlineKeyboardMarkup buttons = new InlineKeyboardMarkup();
@@ -477,7 +485,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                 case CLICK_PUPPY: {
                     String text = """
                             Обеспечьте своему щенку безопасность, разнообразные занятия и свое уютное место - и вы создадите ему счастливый и комфортный дом.
-                            
+                                                        
                             Безопасное пространство: Оградите опасные зоны, уберите провода и мелкие предметы, создайте безопасное место для отдыха.
                                                         
                             Игрушки и развлечения: Предоставьте разнообразные игрушки для развития и развлечения щенка, помогая ему снять стресс и скуку.
@@ -547,6 +555,7 @@ public class UserRequestServiceImpl implements UserRequestService {
             }
         }
     }
+
     private void sendWarningMessage(Update update) {
 
         Message message = update.callbackQuery().message();
@@ -698,6 +707,19 @@ public class UserRequestServiceImpl implements UserRequestService {
         sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsDogShelterInfo());
         sendMessage(sendMessage);
     }
+
+    private void sendAnimalsToUser(long chatId, List<Animal> animals) {
+        StringBuilder messageText = new StringBuilder();
+        for (Animal animal : animals) {
+            messageText.append("Имя: ").append(animal.getName())
+                    .append(", Цвет: ").append(animal.getColor())
+                    .append(", Пол: ").append(animal.getSex())
+                    .append("\n");
+        }
+        SendMessage message = new SendMessage(chatId, messageText.toString());
+        telegramBot.execute(message);
+    }
+
 
     // Отправляет простое текстовое сообщение в указанный чат
     private void sendMessage(long chatId, String message) {
