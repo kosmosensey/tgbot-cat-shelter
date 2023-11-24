@@ -4,18 +4,21 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
+import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
+import pro.sky.tgbotcatshelter.service.UserService;
 import pro.sky.tgbotcatshelter.service.impl.UserServiceImpl;
 
 import java.util.Collection;
+import java.util.List;
 
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public UserController(UserServiceImpl userService) {
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
@@ -51,6 +54,10 @@ public class UserController {
     @GetMapping("/byTelegramId")
     public User findByTelegramId(@RequestBody User user){
         return userService.findUserByTelegramId(user.getTelegramId());
+    }
+    @GetMapping("/byUserType/{user_type}")
+    public List<User> getAllUserByType (@PathVariable("user_type") UserType userType){
+        return userService.getAllUserByType (userType);
     }
 }
 

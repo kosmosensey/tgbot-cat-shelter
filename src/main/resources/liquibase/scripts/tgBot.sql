@@ -11,7 +11,8 @@ CREATE TABLE users(
     car_number    TEXT, -- Номер автомобиля пользователя
     shelter_type SMALLINT, -- Тип приюта
     user_type SMALLINT, -- тип клиента
-    user_status SMALLINT -- Статус клиента
+    user_status SMALLINT, -- Статус клиента
+    trial_period BOOLEAN -- Испытательный срок
 );
 
 -- Создание таблицы "animals" для хранения информации о животных

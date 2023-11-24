@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.web.bind.annotation.*;
 import pro.sky.tgbotcatshelter.entity.Animal;
+import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.service.AnimalService;
 
 import java.util.Collection;
