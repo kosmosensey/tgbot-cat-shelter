@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
+import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
 
 import java.util.List;
@@ -23,6 +24,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByTelegramId(@Param("telegram_id") long telegramId);
     @Query("SELECT u FROM User u")
     List<User> getAllUsers();
+    @Query("SELECT u FROM User u WHERE u.userType= :user_type")
+    List<User> getAllUserByType (@Param("user_type") UserType userType);
 
     @Modifying
     @Query("UPDATE User u SET " +

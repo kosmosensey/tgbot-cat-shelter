@@ -793,7 +793,7 @@ public class UserRequestServiceImpl implements UserRequestService {
 
         for (User volunteer : volunteers) {
             telegramBot.execute(new SendMessage(volunteer.getTelegramId(), "Усыновитель " +
-                                                                           "" + '@' + name + " послал сообщение: " + text));
+                    "" + '@' + name + " послал сообщение: " + text));
         }
 
         SendMessage message1 = new SendMessage(chatId, "Первый освободившийся волонтёр ответит вам в ближайшее время");
@@ -913,5 +913,20 @@ public class UserRequestServiceImpl implements UserRequestService {
         SendMessage message = new SendMessage(chatId, text);
         message.replyMarkup(buttons);
         sendMessage1(message);
+    }
+
+    // Отправляет сообщение пользователю об успешном прохождении испытательного срока
+
+    @Override
+    public void TrialPeriodPassed(Update update) {
+        Message message = update.message();
+        long chatId = message.chat().id();
+        long telegramId = message.from().id();
+        User userByTelegramId = userService.findUserByTelegramId(telegramId);
+        if (userByTelegramId != null && userByTelegramId.isTrialPeriod()) {
+            telegramBot.execute(new SendMessage(chatId, "Поздравляем, вы прошли испытательный срок! " +
+                    "Теперь питомец ваш, соблюдайте все рекомендации по уходу. " +
+                    "Рады будем видеть вас снова в нашем приюте. "));
+        }
     }
 }
