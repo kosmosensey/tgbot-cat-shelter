@@ -1,7 +1,9 @@
 package pro.sky.tgbotcatshelter.service;
 
+import pro.sky.tgbotcatshelter.constants.PetType;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
+import pro.sky.tgbotcatshelter.entity.Animal;
 import pro.sky.tgbotcatshelter.entity.User;
 
 import java.util.List;
@@ -29,5 +31,7 @@ public interface UserService {
     void editUser(Long userId, User updatedUser);
 
     List<User> getAllUsers();
+
+    List<User> getAllUserByType(UserType userType);
 
 }

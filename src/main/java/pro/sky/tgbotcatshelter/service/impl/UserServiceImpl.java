@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
+
 import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.exception.ShelterNotFoundException;
@@ -41,6 +42,12 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByTelegramId(telegramId);
     }
 
+       // Поиск пользователей по типу (усыновитель, волонтер, пользователь, гость)
+    @Override
+    public List<User> getAllUserByType (UserType userType) {
+        return userRepository.getAllUserByType(userType);
+    }
+
     // Создание нового пользователя
     @Override
     public User create(User user) {
@@ -53,10 +60,16 @@ public class UserServiceImpl implements UserService {
     public User update(Long id, User user) {
         logger.info("started method update");
         User existingUser = userRepository.findById(id)
-                .orElseThrow(ShelterNotFoundException::new);
+                .orElseThrow(UserNotFoundException::new);
         existingUser.setName(user.getName());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setTelegramId(id);
+        existingUser.setUserStatus(user.getUserStatus());
+        existingUser.setShelterType(user.getShelterType());
+        existingUser.setAddress(user.getAddress());
+        existingUser.setCarNumber(existingUser.getCarNumber());
+        existingUser.setTrialPeriod(existingUser.isTrialPeriod());
+        existingUser.setUserType(existingUser.getUserType());
+
         return userRepository.save(existingUser);
     }
 
@@ -71,6 +84,7 @@ public class UserServiceImpl implements UserService {
     }
 
     // Получение всех пользователей
+   @Override
     public List<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();

@@ -35,4 +35,6 @@ public interface UserRequestService {
     boolean checkReport(Update update);
 
     boolean checkVolunteer(Update update);
+
+    void TrialPeriodPassed(Update update);
 }
