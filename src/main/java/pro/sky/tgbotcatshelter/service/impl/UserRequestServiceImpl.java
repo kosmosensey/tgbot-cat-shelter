@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -206,7 +206,7 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
     /**
-     * метод отвечает за загрузку отчета от усыновителя.
+     * Метод отвечает за загрузку отчета от усыновителя.
      *
      * @param update
      * @param
