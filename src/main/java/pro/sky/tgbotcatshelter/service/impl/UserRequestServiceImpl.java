@@ -13,13 +13,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.tgbotcatshelter.constants.PetType;
+import pro.sky.tgbotcatshelter.constants.StatusReport;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.Animal;
-import pro.sky.tgbotcatshelter.entity.Report;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.entity.User;
+import pro.sky.tgbotcatshelter.exception.NotFoundReportException;
 import pro.sky.tgbotcatshelter.listener.TgBotCatShelterUpdatesListener;
+import pro.sky.tgbotcatshelter.repository.UserRepository;
 import pro.sky.tgbotcatshelter.service.*;
 
 import java.time.LocalDate;
@@ -38,15 +40,15 @@ import static pro.sky.tgbotcatshelter.constants.Messages.*;
  */
 @Service
 public class UserRequestServiceImpl implements UserRequestService {
-
+    private static ReportUser checkReport;
     private Map<Long, Boolean> reportStateByChatId = new HashMap<>();
     private Map<Long, Boolean> updateUserInfoStateByChatId = new HashMap<>();
     private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
     private final InlineKeyboardMarkupService inlineKeyboardMarkupService;
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
+    private final UserRepository userRepository;
     private final UserService userService;
-    private static Report checkReport;
     private final AnimalService animalService;
     final Map<Long, UserType> userCatAndDogStateByChatId = new HashMap<>();
     private final Map<Long, String> stateByChatId = new HashMap<>();
@@ -60,16 +62,18 @@ public class UserRequestServiceImpl implements UserRequestService {
      * @param
      * @param inlineKeyboardMarkupService сервис для создания inline-клавиатуры.
      * @param telegramBot                 бот для отправки сообщений.
+     * @param userRepository
      * @param userService                 сервис для работы с пользователями.
      * @param animalService
      * @param reportUserService
      */
     public UserRequestServiceImpl(InlineKeyboardMarkupService inlineKeyboardMarkupService,
                                   TelegramBot telegramBot,
-                                  UserService userService,
+                                  UserRepository userRepository, UserService userService,
                                   AnimalService animalService, ReportUserService reportUserService) {
         this.inlineKeyboardMarkupService = inlineKeyboardMarkupService;
         this.telegramBot = telegramBot;
+        this.userRepository = userRepository;
         this.userService = userService;
         this.animalService = animalService;
         this.reportUserService = reportUserService;
@@ -114,6 +118,7 @@ public class UserRequestServiceImpl implements UserRequestService {
             }
         }
     }
+
 
     /**
      * Отправляет приветственное сообщение новому пользователю.
@@ -161,7 +166,7 @@ public class UserRequestServiceImpl implements UserRequestService {
         SendMessage sendMessage =
                 new SendMessage(chatId, String.format(GREETING_VOLUNTEER, name));
 
-        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsShelterTypeSelect());
+        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsVolunteerMenu());
         SendResponse sendResponse = telegramBot.execute(sendMessage);
         if (!sendResponse.isOk()) {
             logger.error("Error during sending message: {}", sendResponse.description());
@@ -169,14 +174,13 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
 
-    /*TODO доработать Сергею метод на этой неделе
     /**
      * Метод, обновляющий поля пользователя в базе данных.<br>
      * <p>
      * #{@link UserService#editUser(Long, User)}<br>
      * #{@link UserService#create(User)}<br>
      */
-    
+
     @Override
     public void updateUser(Update update) {
         Message message = update.message();
@@ -214,6 +218,8 @@ public class UserRequestServiceImpl implements UserRequestService {
     public void takeReportFromUser(Update update) {
         Long chatId = update.message().chat().id();
         long telegramId = update.message().from().id();
+
+        User user = userRepository.findByTelegramId(telegramId);
         if (update.message().caption() == null || update.message().photo() == null) {
             SendMessage message = new SendMessage(chatId, "Некорректный формат отчета! Попробуй ещё раз");
             telegramBot.execute(message);
@@ -222,11 +228,12 @@ public class UserRequestServiceImpl implements UserRequestService {
             GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
             GetFileResponse response = telegramBot.execute(getFile);
             String photoPath = telegramBot.getFullFilePath(response.file());
-            ReportUser reportUser = new ReportUser(photoPath, reportText, telegramId);
-
+            LocalDate dateReport = LocalDate.now();
+            LocalDate dateEndOfProbation = LocalDate.now().plusMonths(1);
+            StatusReport statusReport = StatusReport.DEFAULT;
             SendMessage message = new SendMessage(chatId, "Спасибо за отчёт, результат проверки узнаете в течение дня!");
             telegramBot.execute(message);
-            reportUserService.createReportUser(reportUser);
+            reportUserService.createReportUser(photoPath, reportText, user, statusReport, dateReport, dateEndOfProbation);
             reportStateByChatId.remove(chatId);
         }
     }
@@ -578,6 +585,56 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage2(chatId, text, buttons);
                     break;
                 }
+                case CLICK_CHECK_REPORT:
+
+                    getCheckReport(update);
+
+                    break;
+                case CLICK_OK:
+
+                    checkReportStatusOk();
+
+                    sendMessage(chatId, "отчет принят!");
+
+                    break;
+                case CLICK_NOT_OK:
+
+                    checkReportStatusNotOk();
+
+                    SendMessage sendMessage2 = new SendMessage(chatId, "отчет не принят!");
+
+                    sendMessage2.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReportNotOk());
+
+                    sendMessage(sendMessage2);
+
+                    break;
+                case CLICK_EXTEND:
+
+                    SendMessage sendMessage3 = new SendMessage(chatId, "На сколько продлить испытательный срок?");
+
+                    sendMessage3.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReportNotOkExtend());
+
+                    sendMessage(sendMessage3);
+
+                    break;
+                case CLICK_EXTEND_14_DAY:
+
+                    sendExtend14Day();
+                    sendMessage(chatId, "Испытательный срок продлен на 14 дней!");
+
+                    break;
+                case CLICK_EXTEND_30_DAY:
+
+                    sendExtend30Day();
+                    sendMessage(chatId, "Испытательный срок продлен на 30 дней!");
+
+                    break;
+                case CLICK_WARNING_REPORT:
+
+                    sendWarningMessage(update);
+                    sendMessage(chatId, "Предупреждение отправлено!");
+
+                    break;
             }
         }
     }
@@ -590,9 +647,78 @@ public class UserRequestServiceImpl implements UserRequestService {
                              " Пожалуйста, подойди ответственнее к этому занятию. " +
                              "В противном случае волонтеры приюта будут обязаны самолично " +
                              "проверять условия содержания животного";
-        long userId = message.from().id();
+        User user = checkReport.getTelegramId();
 
-        LocalDate date = LocalDate.now();
+        telegramBot.execute(new SendMessage(user.getTelegramId(), textMessage));
+    }
+
+    private void checkReportStatusOk() {
+
+        User user = checkReport.getTelegramId();
+
+        StatusReport statusReport = StatusReport.ACCEPTED;
+
+        reportUserService.updateStatusReportById(user, statusReport);
+
+    }
+
+    private void checkReportStatusNotOk() {
+
+        User user = checkReport.getTelegramId();
+
+        StatusReport statusReport = StatusReport.NOT_ACCEPTED;
+
+        reportUserService.updateStatusReportById(user, statusReport);
+    }
+
+
+    private void getCheckReport(Update update) {
+
+        Message message = update.callbackQuery().message();
+        long chatId = message.chat().id();
+
+        List<ReportUser> reportList = reportUserService.getAllReport().stream().toList();
+
+        for (ReportUser report : reportList) {
+            if (report.getStatusReport() == StatusReport.DEFAULT) {
+                checkReport = report;
+                break;
+            }
+        }
+        if (checkReport == null) {
+            sendMessage(chatId, "Отчетов нет!");
+            throw new NotFoundReportException("Отчетов нет!");
+        }
+
+        String name = checkReport.getTelegramId().getName();
+        SendMessage sendMessage =
+                new SendMessage(chatId, "Отчет от " + '@' + name +
+                                        ", был отправлен " + checkReport.getDateReport() + " :\n" +
+                                        "отчет: " + checkReport.getReportText() + "\n" +
+                                        "фото: " + checkReport.getPhotoPath());
+
+        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReport());
+
+        sendMessage(sendMessage);
+    }
+
+    private void sendExtend30Day() {
+
+        User user = checkReport.getTelegramId();
+
+        LocalDate dateEndOfProbation = LocalDate.now().plusMonths(1);
+
+        reportUserService.updateDateEndOfProbationById(user, dateEndOfProbation);
+
+    }
+
+    private void sendExtend14Day() {
+
+        User user = checkReport.getTelegramId();
+
+        LocalDate dateEndOfProbation = LocalDate.now().plusWeeks(2);
+
+        reportUserService.updateDateEndOfProbationById(user, dateEndOfProbation);
     }
 
     @Override

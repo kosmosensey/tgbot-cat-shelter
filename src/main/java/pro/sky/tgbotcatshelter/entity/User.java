@@ -22,7 +22,7 @@ public class User {
 
     // ID пользователя в телеграмме
     @Column(name = "telegram_id")
-    private Long telegramId;
+    private long telegramId;
 
     // Имя пользователя
     @Column(name = "name")
