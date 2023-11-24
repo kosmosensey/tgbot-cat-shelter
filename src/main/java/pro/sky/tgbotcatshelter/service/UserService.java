@@ -1,5 +1,6 @@
 package pro.sky.tgbotcatshelter.service;
 
+import jakarta.transaction.Transactional;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
@@ -30,4 +31,6 @@ public interface UserService {
 
     List<User> getAllUsers();
 
+    @Transactional
+    void updateStatusUserById(Long id, UserStatus userStatus);
 }

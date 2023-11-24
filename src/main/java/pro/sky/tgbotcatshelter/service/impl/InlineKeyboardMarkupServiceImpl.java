@@ -226,6 +226,8 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_WARNING_REPORT));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Продлить испытательный срок")
                 .callbackData(CLICK_EXTEND));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Заблокировать пользователя")
+                .callbackData(CLICK_BLOCK_ADOPTER));
 
         return inlineKeyboardMarkup;
     }

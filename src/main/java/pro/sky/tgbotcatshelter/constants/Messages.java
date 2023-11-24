@@ -38,6 +38,7 @@ public class Messages {
     public static final String CLICK_EXTEND_14_DAY = "CLICK_EXTEND_14_DAY";
     public static final String CLICK_EXTEND_30_DAY = "CLICK_EXTEND_30_DAY";
     public static final String CLICK_WARNING_REPORT = "CLICK_WARNING";
+    public static final String CLICK_BLOCK_ADOPTER = "CLICK_BLOCK_ADOPTER";
 
     /**
      * Текст под кнопками КОШАЧЬЕГО приюта

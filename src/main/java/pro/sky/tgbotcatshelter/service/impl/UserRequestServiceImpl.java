@@ -608,6 +608,12 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(sendMessage2);
 
                     break;
+                case CLICK_BLOCK_ADOPTER:
+
+                    sendWarningDeleteAdopter(update);
+                    sendMessage(chatId, "Пользователь заблокирован!");
+
+                    break;
                 case CLICK_EXTEND:
 
                     SendMessage sendMessage3 = new SendMessage(chatId, "На сколько продлить испытательный срок?");
@@ -640,8 +646,6 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
     private void sendWarningMessage(Update update) {
-
-        Message message = update.callbackQuery().message();
         String textMessage = "Дорогой усыновитель, мы заметили, " +
                              "что ты заполняешь отчет не так подробно, как необходимо." +
                              " Пожалуйста, подойди ответственнее к этому занятию. " +
@@ -651,6 +655,20 @@ public class UserRequestServiceImpl implements UserRequestService {
 
         telegramBot.execute(new SendMessage(user.getTelegramId(), textMessage));
     }
+
+    private void sendWarningDeleteAdopter(Update update) {
+        String textMessage = "Вы не прошли испытательный срок, " +
+                             "в ближайшее время с Вами свяжется волонтер для " +
+                             "дальнейшего плана действия!" +
+                             "Отныне, Вы персона нон града и доступ в наш приют заблокирован!";
+
+        User guest = checkReport.getTelegramId();
+        UserStatus userStatus = UserStatus.BLOCKED;
+
+        userService.updateStatusUserById(guest.getTelegramId(), userStatus);
+        telegramBot.execute(new SendMessage(guest.getTelegramId(), textMessage));
+    }
+
 
     private void checkReportStatusOk() {
 
