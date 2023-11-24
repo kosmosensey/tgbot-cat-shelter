@@ -31,6 +31,14 @@ public class Messages {
      */
 
     public static final String CLICK_CALL_A_VOLUNTEER = "click_Call_A_Volunteer_Cat";
+    public static final String CLICK_OK = "CLICK_OK";
+    public static final String CLICK_NOT_OK = "CLICK_NOT_OK";
+    public static final String CLICK_CHECK_REPORT = "CLICK_CHECK_REPORT";
+    public static final String CLICK_EXTEND = "CLICK_EXTEND";
+    public static final String CLICK_EXTEND_14_DAY = "CLICK_EXTEND_14_DAY";
+    public static final String CLICK_EXTEND_30_DAY = "CLICK_EXTEND_30_DAY";
+    public static final String CLICK_WARNING_REPORT = "CLICK_WARNING";
+    public static final String CLICK_BLOCK_ADOPTER = "CLICK_BLOCK_ADOPTER";
 
     /**
      * Текст под кнопками КОШАЧЬЕГО приюта

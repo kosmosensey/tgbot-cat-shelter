@@ -1,11 +1,21 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
-import java.util.Objects;
+import lombok.*;
+import pro.sky.tgbotcatshelter.constants.StatusReport;
+
+import java.time.LocalDate;
 
 /**
  * Класс, представляющий отчет о пользователе приложения.
  */
+@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @Entity
 @Table(name = "report_users")
 public class ReportUser {
@@ -20,16 +30,60 @@ public class ReportUser {
     @Column(name = "report_text")
     private String reportText;
 
-    @Column(name = "telegram_id")
-    private Long telegramId;
+    @JoinColumn(name = "telegram_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User telegramId;
+    @Column(name = "status_report")
+    private StatusReport statusReport;
+    @Column(name = "date_report")
+    private LocalDate dateReport;
+    @Column(name = "date_end_of_probation")
+    private LocalDate dateEndOfProbation;
 
-    public ReportUser() {
-    }
-
-    public ReportUser(String photoPath, String reportText, Long telegramId) {
+    public ReportUser(String photoPath,
+                      String reportText,
+                      User telegramId,
+                      StatusReport statusReport,
+                      LocalDate dateReport,
+                      LocalDate dateEndOfProbation) {
         this.photoPath = photoPath;
         this.reportText = reportText;
         this.telegramId = telegramId;
+        this.statusReport = statusReport;
+        this.dateReport = dateReport;
+        this.dateEndOfProbation = dateEndOfProbation;
+    }
+
+    public User getTelegramId() {
+        return telegramId;
+    }
+
+    public void setTelegramId(User telegramId) {
+        this.telegramId = telegramId;
+    }
+
+    public StatusReport getStatusReport() {
+        return statusReport;
+    }
+
+    public void setStatusReport(StatusReport statusReport) {
+        this.statusReport = statusReport;
+    }
+
+    public LocalDate getDateReport() {
+        return dateReport;
+    }
+
+    public void setDateReport(LocalDate dateReport) {
+        this.dateReport = dateReport;
+    }
+
+    public LocalDate getDateEndOfProbation() {
+        return dateEndOfProbation;
+    }
+
+    public void setDateEndOfProbation(LocalDate dateEndOfProbation) {
+        this.dateEndOfProbation = dateEndOfProbation;
     }
 
     public String getPhotoPath() {
@@ -46,26 +100,5 @@ public class ReportUser {
 
     public void setReportText(String reportText) {
         this.reportText = reportText;
-    }
-
-    public Long getTelegramId() {
-        return telegramId;
-    }
-
-    public void setTelegramId(Long telegramId) {
-        this.telegramId = telegramId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReportUser that = (ReportUser) o;
-        return id == that.id && Objects.equals(photoPath, that.photoPath) && Objects.equals(reportText, that.reportText) && Objects.equals(telegramId, that.telegramId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, photoPath, reportText, telegramId);
     }
 }

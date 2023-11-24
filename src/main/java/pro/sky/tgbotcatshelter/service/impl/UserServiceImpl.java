@@ -1,5 +1,6 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,5 +113,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public void editUser(Long userId, User updatedUser) {
 
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusUserById(Long id, UserStatus userStatus) {
+
+        userRepository.updateStatusUserById(id, userStatus);
     }
 }
