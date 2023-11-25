@@ -63,7 +63,6 @@ public class UserRequestServiceImplTest {
     @Test
     void testSendMessageStartDefaultUser() throws URISyntaxException, IOException {
         pro.sky.tgbotcatshelter.entity.User user = null;
-
         when(userService.findUserByTelegramId(1L)).thenReturn(user);
     }
 
