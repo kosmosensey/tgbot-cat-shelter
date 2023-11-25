@@ -32,13 +32,11 @@ import static pro.sky.tgbotcatshelter.constants.UserType.*;
 import static pro.sky.tgbotcatshelter.constants.UserStatus.*;
 
 public class UserControllerTest {
-
     @Mock
     private UserService userService;
 
     @InjectMocks
     private UserController userController;
-
 
     private final MockMvc mockMvc;
     public UserControllerTest() {
