@@ -1,17 +1,16 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 import pro.sky.tgbotcatshelter.constants.ShelterType;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
+
 import java.util.Objects;
 
 /**
  * Сущность, описывающая пользователя системы.
  */
 @Entity
-@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -96,6 +95,9 @@ public class User {
         this.telegramId = telegramId;
         this.userType = userType;
         this.userStatus = userStatus;
+    }
+
+    public User() {
     }
 
     public boolean isTrialPeriod() {

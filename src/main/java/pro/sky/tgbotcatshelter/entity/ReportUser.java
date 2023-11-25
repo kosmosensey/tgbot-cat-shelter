@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-@NoArgsConstructor
 @ToString
 @Entity
 @Table(name = "report_users")
@@ -52,6 +51,9 @@ public class ReportUser {
         this.statusReport = statusReport;
         this.dateReport = dateReport;
         this.dateEndOfProbation = dateEndOfProbation;
+    }
+
+    public ReportUser() {
     }
 
     public User getTelegramId() {
