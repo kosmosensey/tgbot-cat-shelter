@@ -641,6 +641,12 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(chatId, "Предупреждение отправлено!");
 
                     break;
+                case TRIAL_PERIOD_PASSED:
+
+                    TrialPeriodPassed(update);
+                    sendMessage(chatId, "Оповещение, что испытательный срок пройден отправлено!");
+
+                    break;
             }
         }
     }
@@ -919,14 +925,13 @@ public class UserRequestServiceImpl implements UserRequestService {
 
     @Override
     public void TrialPeriodPassed(Update update) {
-        Message message = update.message();
-        long chatId = message.chat().id();
-        long telegramId = message.from().id();
-        User userByTelegramId = userService.findUserByTelegramId(telegramId);
-        if (userByTelegramId != null && userByTelegramId.isTrialPeriod()) {
-            telegramBot.execute(new SendMessage(chatId, "Поздравляем, вы прошли испытательный срок! " +
-                    "Теперь питомец ваш, соблюдайте все рекомендации по уходу. " +
-                    "Рады будем видеть вас снова в нашем приюте. "));
+        String textMessage = "Поздравляем, вы прошли испытательный срок! " +
+                "Теперь питомец ваш, соблюдайте все рекомендации по уходу. " +
+                "Рады будем видеть вас снова в нашем приюте. ";
+        User user = checkReport.getTelegramId();
+        if (user != null && user.isTrialPeriod()) {
+            telegramBot.execute(new SendMessage(user.getTelegramId(), textMessage));
         }
     }
+
 }
