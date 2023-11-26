@@ -1,17 +1,16 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
-import lombok.NoArgsConstructor;
 import pro.sky.tgbotcatshelter.constants.ShelterType;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
+
 import java.util.Objects;
 
 /**
  * Сущность, описывающая пользователя системы.
  */
 @Entity
-@NoArgsConstructor
 @Table(name = "users")
 public class User {
 
@@ -22,7 +21,7 @@ public class User {
 
     // ID пользователя в телеграмме
     @Column(name = "telegram_id")
-    private Long telegramId;
+    private long telegramId;
 
     // Имя пользователя
     @Column(name = "name")
@@ -52,6 +51,9 @@ public class User {
     @Column(name = "user_status")
     private UserStatus userStatus;
 
+    @Column(name = "trial_period")
+    private boolean trialPeriod;
+
     // Конструкторы
     public User(Long id,
                 Long telegram_id,
@@ -67,10 +69,43 @@ public class User {
         this.carNumber = carNumber;
     }
 
+    public User(Long id,
+                Long telegramId,
+                String name,
+                String address,
+                String phoneNumber,
+                String carNumber,
+                ShelterType shelterType,
+                UserType userType,
+                UserStatus userStatus,
+                boolean trialPeriod) {
+        this.id = id;
+        this.telegramId = telegramId;
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.carNumber = carNumber;
+        this.shelterType = shelterType;
+        this.userType = userType;
+        this.userStatus = userStatus;
+        this.trialPeriod = trialPeriod;
+    }
+
     public User(Long telegramId, UserType userType, UserStatus userStatus) {
         this.telegramId = telegramId;
         this.userType = userType;
         this.userStatus = userStatus;
+    }
+
+    public User() {
+    }
+
+    public boolean isTrialPeriod() {
+        return trialPeriod;
+    }
+
+    public void setTrialPeriod(boolean trialPeriod) {
+        this.trialPeriod = trialPeriod;
     }
 
     public User(Long telegramId, String name, UserType userType, UserStatus userStatus) {
@@ -78,6 +113,14 @@ public class User {
         this.name = name;
         this.userType = userType;
         this.userStatus = userStatus;
+    }
+
+    public User(long telegramId, String name, String address, String carNumber, String phoneNumber) {
+        this.telegramId = telegramId;
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+        this.carNumber = carNumber;
     }
 
 
@@ -146,19 +189,6 @@ public class User {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(telegramId, user.telegramId) && Objects.equals(name, user.name) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(carNumber, user.carNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, telegramId, name, phoneNumber, carNumber);
-    }
-
-    @Override
     public String toString() {
         return "User{" +
                "id=" + id +
@@ -188,19 +218,23 @@ public class User {
      * @throws RuntimeException если номер телефона введен некорректно.
      */
     public void setPhoneNumber(String phoneNumber) {
+        if (phoneNumber == null || phoneNumber.isEmpty() || phoneNumber.isBlank()) {
+            this.phoneNumber = "Без телефона";
+        } else {
+            phoneNumber = phoneNumber.replace("-", "");
+            phoneNumber = phoneNumber.replace(" ", "");
+            phoneNumber = phoneNumber.replace("+", "");
 
-        phoneNumber = phoneNumber.replace("-", "");
-        phoneNumber = phoneNumber.replace(" ", "");
-        phoneNumber = phoneNumber.replace("+", "");
-
-        if (phoneNumber.length() == 10) {
-            this.phoneNumber = "(+997)" + phoneNumber;
-        } else if (phoneNumber.length() > 11) {
-            throw new RuntimeException("Телефон слишком длинный");
-        } else if (phoneNumber.length() < 10) {
-            throw new RuntimeException("Телефон слишком короткий");
+            if (phoneNumber.length() == 10) {
+                this.phoneNumber = "(+997)" + phoneNumber;
+            } else if (phoneNumber.length() > 11) {
+                throw new RuntimeException("Телефон слишком длинный");
+            } else if (phoneNumber.length() < 10) {
+                throw new RuntimeException("Телефон слишком короткий");
+            }
         }
     }
+
     /**
      * Метод устанавливает номер автомобиля пользователя, если он указан.
      * @param carNumber Номер автомобиля пользователя.
@@ -211,5 +245,28 @@ public class User {
         } else {
             this.carNumber = carNumber;
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return trialPeriod == user.trialPeriod &&
+                Objects.equals(id, user.id) &&
+                Objects.equals(telegramId, user.telegramId) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(address, user.address) &&
+                Objects.equals(phoneNumber, user.phoneNumber) &&
+                Objects.equals(carNumber, user.carNumber) &&
+                shelterType == user.shelterType &&
+                userType == user.userType &&
+                userStatus == user.userStatus;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, telegramId, name, address, phoneNumber,
+                carNumber, shelterType, userType, userStatus, trialPeriod);
     }
 }

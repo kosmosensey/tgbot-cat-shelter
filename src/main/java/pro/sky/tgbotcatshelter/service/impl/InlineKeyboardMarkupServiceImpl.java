@@ -31,6 +31,8 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_HOW_TO_ADOPT_A_CAT));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить отчет о питомце")
                 .callbackData(CLICK_SEND_A_CAT_REPORT));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Посмотреть список всех котиков")
+                .callbackData(CLICK_SEE_ALL_ANIMAL_CAT));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера")
                 .callbackData(CLICK_CALL_A_VOLUNTEER));
 
@@ -47,6 +49,8 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_HOW_TO_ADOPT_A_DOG));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отправить отчет о питомце")
                 .callbackData(CLICK_SEND_A_DOG_REPORT));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Посмотреть список всех собачек")
+                .callbackData(CLICK_SEE_ALL_ANIMAL_DOG));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера")
                 .callbackData(CLICK_CALL_A_VOLUNTEER));
 
@@ -189,6 +193,52 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
                 .callbackData(CLICK_DOG_INVALID));
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Позвать волонтера")
                 .callbackData(CLICK_CALL_A_VOLUNTEER));
+
+        return inlineKeyboardMarkup;
+    }
+
+    @Override
+    public InlineKeyboardMarkup createButtonsVolunteerMenu() {
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Проверить отчёты")
+                .callbackData(CLICK_CHECK_REPORT));
+
+        return inlineKeyboardMarkup;
+    }
+
+    @Override
+    public InlineKeyboardMarkup createButtonsCheckReport() {
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отчёт в порядке")
+                .callbackData(CLICK_OK));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Отчёт не в порядке")
+                .callbackData(CLICK_NOT_OK));
+
+        return inlineKeyboardMarkup;
+    }
+    @Override
+    public InlineKeyboardMarkup createButtonsCheckReportNotOk() {
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Предупреждение усыновителя")
+                .callbackData(CLICK_WARNING_REPORT));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Продлить испытательный срок")
+                .callbackData(CLICK_EXTEND));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Заблокировать пользователя")
+                .callbackData(CLICK_BLOCK_ADOPTER));
+
+        return inlineKeyboardMarkup;
+    }
+    @Override
+    public InlineKeyboardMarkup createButtonsCheckReportNotOkExtend() {
+
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Продлить на 14 дней")
+                .callbackData(CLICK_EXTEND_14_DAY));
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Продлить на месяц")
+                .callbackData(CLICK_EXTEND_30_DAY));
 
         return inlineKeyboardMarkup;
     }

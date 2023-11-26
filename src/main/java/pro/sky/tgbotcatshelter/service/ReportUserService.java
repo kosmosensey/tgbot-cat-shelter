@@ -1,21 +1,25 @@
 package pro.sky.tgbotcatshelter.service;
 
-import com.pengrad.telegrambot.model.Update;
+import jakarta.transaction.Transactional;
+import pro.sky.tgbotcatshelter.constants.StatusReport;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
+import pro.sky.tgbotcatshelter.entity.User;
 
+import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Optional;
 
 /**
  * Интерфейс сервиса для работы с отчетами пользователей.
  */
 public interface ReportUserService {
 
-    /**
-     * Создает отчет пользователя.
-     *
-     * @param reportUser объект отчета пользователя для создания
-     */
-    void createReportUser(ReportUser reportUser);
+    ReportUser createReportUser(String photoPath,
+                                String reportText,
+                                User telegramId,
+                                StatusReport statusReport,
+                                LocalDate dateReport,
+                                LocalDate dateEndOfProbation);
 
     /**
      * Находит и возвращает все отчеты пользователей.
@@ -30,12 +34,19 @@ public interface ReportUserService {
      * @param id идентификатор отчета пользователя
      * @return объект отчета пользователя
      */
-    ReportUser findReportUserById(long id);
+    Optional<ReportUser> findReportUserById(long id);
 
+    @Transactional
+    void updateDateEndOfProbationById(User userId,
+                                      LocalDate dateEndOfProbation);
     /**
-     * Получает отчет от пользователя и сохраняет его.
+     * Выводим все отчеты
      *
-     * @param update объект Update, содержащий информацию об отчете пользователя
+     * @return список отчетов
      */
-    void takeReportFromUser(Update update);
+    Collection<ReportUser> getAllReport();
+
+    @Transactional
+    void updateStatusReportById(User userId,
+                                StatusReport statusReport);
 }

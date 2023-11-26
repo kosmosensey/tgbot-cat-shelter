@@ -3,12 +3,14 @@ package pro.sky.tgbotcatshelter.service.impl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.tgbotcatshelter.constants.PetType;
 import pro.sky.tgbotcatshelter.entity.Animal;
 import pro.sky.tgbotcatshelter.exception.AnimalNotFoundException;
 import pro.sky.tgbotcatshelter.repository.AnimalRepository;
 import pro.sky.tgbotcatshelter.service.AnimalService;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -96,5 +98,10 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(AnimalNotFoundException::new);
         animalRepository.delete(existingAnimal);
         return existingAnimal;
+    }
+
+    @Override
+    public List<Animal> getAllAnimalsByType(PetType petType) {
+        return animalRepository.findByPetType(petType);
     }
 }

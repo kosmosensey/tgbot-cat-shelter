@@ -53,6 +53,12 @@ public final class TgBotCatShelterUpdatesListener implements UpdatesListener {
             updates.forEach(update -> {
                 logger.info("Handles update: {}", update);
 
+                if (userRequestService.checkReport(update)) {
+                    return;
+                }
+                if (userRequestService.checkVolunteer(update)) {
+                    return;
+                }
                 if (update.message() == null) {
                     userRequestService.createButtonClick(update);
 

@@ -1,12 +1,10 @@
 package pro.sky.tgbotcatshelter.service;
 
-import org.springframework.stereotype.Service;
+import pro.sky.tgbotcatshelter.constants.PetType;
 import pro.sky.tgbotcatshelter.entity.Animal;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.List;
 
 /**
  * Сервис по работе с животными.
@@ -22,4 +20,6 @@ public interface AnimalService {
     Animal update(Long id, Animal animal);
 
     Animal remove(long id);
+
+    List<Animal> getAllAnimalsByType(PetType petType);
 }

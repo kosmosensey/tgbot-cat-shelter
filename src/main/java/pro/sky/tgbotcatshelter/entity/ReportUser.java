@@ -1,41 +1,91 @@
 package pro.sky.tgbotcatshelter.entity;
 
 import jakarta.persistence.*;
-import java.util.Objects;
+import lombok.*;
+import pro.sky.tgbotcatshelter.constants.StatusReport;
+
+import java.time.LocalDate;
 
 /**
  * Класс, представляющий отчет о пользователе приложения.
  */
+@Data
+@Getter
+@Setter
+@EqualsAndHashCode
+@AllArgsConstructor
+@ToString
 @Entity
-@Table(name = "reportUsers")
+@Table(name = "report_users")
 public class ReportUser {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    // Путь к фотографии пользователя в отчете
+    @Column(name = "photo_path")
     private String photoPath;
 
-    // Текстовое описание пользователя в отчете
-    private String text;
+    @Column(name = "report_text")
+    private String reportText;
 
-    /**
-     * Конструктор класса ReportUser.
-     *
-     * @param photoPath Путь к фотографии пользователя в отчете.
-     * @param text      Текстовое описание пользователя в отчете.
-     */
-    public ReportUser(String photoPath, String text) {
+    @JoinColumn(name = "telegram_id")
+    @ManyToOne(fetch = FetchType.EAGER)
+    private User telegramId;
+    @Column(name = "status_report")
+    private StatusReport statusReport;
+    @Column(name = "date_report")
+    private LocalDate dateReport;
+    @Column(name = "date_end_of_probation")
+    private LocalDate dateEndOfProbation;
+
+    public ReportUser(String photoPath,
+                      String reportText,
+                      User telegramId,
+                      StatusReport statusReport,
+                      LocalDate dateReport,
+                      LocalDate dateEndOfProbation) {
         this.photoPath = photoPath;
-        this.text = text;
+        this.reportText = reportText;
+        this.telegramId = telegramId;
+        this.statusReport = statusReport;
+        this.dateReport = dateReport;
+        this.dateEndOfProbation = dateEndOfProbation;
     }
 
-    /**
-     * Пустой конструктор класса ReportUser.
-     * Необходим для работы сущности в контексте JPA.
-     */
     public ReportUser() {
+    }
+
+    public User getTelegramId() {
+        return telegramId;
+    }
+
+    public void setTelegramId(User telegramId) {
+        this.telegramId = telegramId;
+    }
+
+    public StatusReport getStatusReport() {
+        return statusReport;
+    }
+
+    public void setStatusReport(StatusReport statusReport) {
+        this.statusReport = statusReport;
+    }
+
+    public LocalDate getDateReport() {
+        return dateReport;
+    }
+
+    public void setDateReport(LocalDate dateReport) {
+        this.dateReport = dateReport;
+    }
+
+    public LocalDate getDateEndOfProbation() {
+        return dateEndOfProbation;
+    }
+
+    public void setDateEndOfProbation(LocalDate dateEndOfProbation) {
+        this.dateEndOfProbation = dateEndOfProbation;
     }
 
     public String getPhotoPath() {
@@ -46,32 +96,11 @@ public class ReportUser {
         this.photoPath = photoPath;
     }
 
-    public String getText() {
-        return text;
+    public String getReportText() {
+        return reportText;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ReportUser that = (ReportUser) o;
-        return id == that.id && Objects.equals(photoPath, that.photoPath) && Objects.equals(text, that.text);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, photoPath, text);
-    }
-
-    @Override
-    public String toString() {
-        return "ReportUser{" +
-                "photoPath='" + photoPath + '\'' +
-                ", text='" + text + '\'' +
-                '}';
+    public void setReportText(String reportText) {
+        this.reportText = reportText;
     }
 }

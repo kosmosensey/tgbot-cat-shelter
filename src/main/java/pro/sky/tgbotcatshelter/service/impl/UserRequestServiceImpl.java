@@ -12,18 +12,24 @@ import com.pengrad.telegrambot.response.SendResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import pro.sky.tgbotcatshelter.constants.PetType;
+import pro.sky.tgbotcatshelter.constants.StatusReport;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
+import pro.sky.tgbotcatshelter.entity.Animal;
 import pro.sky.tgbotcatshelter.entity.ReportUser;
 import pro.sky.tgbotcatshelter.entity.User;
+import pro.sky.tgbotcatshelter.exception.NotFoundReportException;
 import pro.sky.tgbotcatshelter.listener.TgBotCatShelterUpdatesListener;
-import pro.sky.tgbotcatshelter.service.InlineKeyboardMarkupService;
-import pro.sky.tgbotcatshelter.service.ReportUserService;
-import pro.sky.tgbotcatshelter.service.UserRequestService;
-import pro.sky.tgbotcatshelter.service.UserService;
+import pro.sky.tgbotcatshelter.repository.UserRepository;
+import pro.sky.tgbotcatshelter.service.*;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static pro.sky.tgbotcatshelter.constants.Messages.*;
@@ -34,20 +40,20 @@ import static pro.sky.tgbotcatshelter.constants.Messages.*;
  */
 @Service
 public class UserRequestServiceImpl implements UserRequestService {
-
+    private static ReportUser checkReport;
     private Map<Long, Boolean> reportStateByChatId = new HashMap<>();
     private Map<Long, Boolean> updateUserInfoStateByChatId = new HashMap<>();
-    private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
+    private final Pattern pattern = Pattern.compile("(^[А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+([А-я]+)\\s+(\\d{11}$)");
     private final InlineKeyboardMarkupService inlineKeyboardMarkupService;
     private final Logger logger = LoggerFactory.getLogger(TgBotCatShelterUpdatesListener.class);
     private final TelegramBot telegramBot;
+    private final UserRepository userRepository;
     private final UserService userService;
+    private final AnimalService animalService;
     final Map<Long, UserType> userCatAndDogStateByChatId = new HashMap<>();
     private final Map<Long, String> stateByChatId = new HashMap<>();
 
     private final ReportUserService reportUserService;
-
-
 
 
     /**
@@ -56,16 +62,20 @@ public class UserRequestServiceImpl implements UserRequestService {
      * @param
      * @param inlineKeyboardMarkupService сервис для создания inline-клавиатуры.
      * @param telegramBot                 бот для отправки сообщений.
+     * @param userRepository
      * @param userService                 сервис для работы с пользователями.
+     * @param animalService
      * @param reportUserService
      */
     public UserRequestServiceImpl(InlineKeyboardMarkupService inlineKeyboardMarkupService,
                                   TelegramBot telegramBot,
-                                  UserService userService,
-                                  ReportUserService reportUserService) {
+                                  UserRepository userRepository, UserService userService,
+                                  AnimalService animalService, ReportUserService reportUserService) {
         this.inlineKeyboardMarkupService = inlineKeyboardMarkupService;
         this.telegramBot = telegramBot;
+        this.userRepository = userRepository;
         this.userService = userService;
+        this.animalService = animalService;
         this.reportUserService = reportUserService;
     }
 
@@ -103,9 +113,12 @@ public class UserRequestServiceImpl implements UserRequestService {
             } else if (user.getUserType() == UserType.DEFAULT && user.getUserStatus() == UserStatus.APPROVE) {
                 // Приветствие пользователя, уже записан в системе
                 greetingNotNewUser(chatId, userName);
+            } else if (user.getUserType() == UserType.VOLUNTEER && user.getUserStatus() == UserStatus.APPROVE) {
+                greetingVolunteer(chatId, userName);
             }
         }
     }
+
 
     /**
      * Отправляет приветственное сообщение новому пользователю.
@@ -148,41 +161,80 @@ public class UserRequestServiceImpl implements UserRequestService {
     }
 
 
+    private void greetingVolunteer(long chatId, String name) {
+
+        SendMessage sendMessage =
+                new SendMessage(chatId, String.format(GREETING_VOLUNTEER, name));
+
+        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsVolunteerMenu());
+        SendResponse sendResponse = telegramBot.execute(sendMessage);
+        if (!sendResponse.isOk()) {
+            logger.error("Error during sending message: {}", sendResponse.description());
+        }
+    }
+
+
+    /**
+     * Метод, обновляющий поля пользователя в базе данных.<br>
+     * <p>
+     * #{@link UserService#editUser(Long, User)}<br>
+     * #{@link UserService#create(User)}<br>
+     */
+
     @Override
     public void updateUser(Update update) {
-
+        Message message = update.message();
+        Matcher matcher = pattern.matcher(message.text());
+        long chatId = message.chat().id();
+        long telegramId = message.from().id();
+        if (matcher.find()) {
+            String name = matcher.group(1) + " " + matcher.group(2);
+            String address = matcher.group(3);
+            String carNumber = matcher.group(4);
+            String phoneNumber = matcher.group(5);
+            User userByTelegramId = userService.findUserByTelegramId(telegramId);
+            if (userByTelegramId != null) {
+                Long userId = userByTelegramId.getId();
+                User updatedUser = new User(telegramId, name, address, carNumber, phoneNumber);
+                userService.editUser(userId, updatedUser);
+                telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
+            } else {
+                User user = new User(telegramId, name, address, carNumber, phoneNumber);
+                userService.create(user);
+                telegramBot.execute(new SendMessage(chatId, "Ваши данные успешно сохранены"));
+            }
+            updateUserInfoStateByChatId.remove(chatId);
+        } else {
+            telegramBot.execute(new SendMessage(chatId, "Некорректный формат ввода! Попробуй ещё раз"));
+        }
     }
 
     /**
-     * метод отвечает за загрузку отчета от усыновителя.
+     * Метод отвечает за загрузку отчета от усыновителя.
      *
      * @param update
      * @param
      */
-    @Override
     public void takeReportFromUser(Update update) {
-        String reportText = update.message().caption();
-        GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
-        GetFileResponse response = telegramBot.execute(getFile);
-        String imageUrl = telegramBot.getFullFilePath(response.file());
         Long chatId = update.message().chat().id();
         long telegramId = update.message().from().id();
-        telegramBot.execute(new SendMessage(chatId, """
-                Отправь, пожалуйста, следующую информацию о животном:
-                Рацион животного:
-                Общее самочувствие и привыкание к новому месту:
-                Изменение в поведении: отказ от старых привычек, приобретение новых:"""));
-        if (imageUrl != null && reportText != null) {
-            ReportUser newReport = new ReportUser();
-            newReport.setText(reportText);
-            newReport.setPhotoPath(imageUrl);
-//            newReport.setTelegramId(telegramId); добавится телеграмАйди в отчете после рефаторинга
+
+        User user = userRepository.findByTelegramId(telegramId);
+        if (update.message().caption() == null || update.message().photo() == null) {
+            SendMessage message = new SendMessage(chatId, "Некорректный формат отчета! Попробуй ещё раз");
+            telegramBot.execute(message);
+        } else {
+            String reportText = update.message().caption();
+            GetFile getFile = new GetFile(update.message().photo()[update.message().photo().length - 1].fileId());
+            GetFileResponse response = telegramBot.execute(getFile);
+            String photoPath = telegramBot.getFullFilePath(response.file());
+            LocalDate dateReport = LocalDate.now();
+            LocalDate dateEndOfProbation = LocalDate.now().plusMonths(1);
+            StatusReport statusReport = StatusReport.DEFAULT;
             SendMessage message = new SendMessage(chatId, "Спасибо за отчёт, результат проверки узнаете в течение дня!");
             telegramBot.execute(message);
-            reportUserService.createReportUser(newReport);
-        } else {
-            SendMessage message = new SendMessage(chatId, "Некорректный формат отчета!");
-            telegramBot.execute(message);
+            reportUserService.createReportUser(photoPath, reportText, user, statusReport, dateReport, dateEndOfProbation);
+            reportStateByChatId.remove(chatId);
         }
     }
 
@@ -240,6 +292,15 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(sendMessage);
                     break;
                 }
+                case CLICK_SEE_ALL_ANIMAL_CAT: {
+                    List<Animal> catAnimals = animalService.getAllAnimalsByType(PetType.CAT);
+                    sendAnimalsToUser(chatId, catAnimals);
+                }
+                case CLICK_SEE_ALL_ANIMAL_DOG: {
+                    List<Animal> dogAnimals = animalService.getAllAnimalsByType(PetType.DOG);
+                    sendAnimalsToUser(chatId, dogAnimals);
+                    break;
+                }
                 case CLICK_ARRANGEMENT_CAT_HOME:
 
                     getCatAtHomeClick(chatId);
@@ -259,14 +320,14 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage(sendMessage);
                     break;
 
-                        case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
-                            telegramBot.execute(new SendMessage(chatId, """
-                        Отправьте отчет о питомце::
-                        - Фото питомца;
-                            - Рацион питомца;
-                            - Общее самочувствие и привыкание к новому мету;
-                            - Изменение в поведении (если есть)."""));
-                            reportStateByChatId.put(chatId, true);
+                case CLICK_REPORT_CAT, CLICK_REPORT_DOG:
+                    telegramBot.execute(new SendMessage(chatId, """
+                            Отправьте отчет о питомце::
+                            - Фото питомца;
+                                - Рацион питомца;
+                                - Общее самочувствие и привыкание к новому мету;
+                                - Изменение в поведении (если есть)."""));
+                    reportStateByChatId.put(chatId, true);
 
                     break;
                 case CLICK_RULES_REPORT_CAT, CLICK_RULES_REPORT_DOG:
@@ -433,7 +494,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                             Используйте позитивные сигналы: Используйте мягкий голос, улыбку и легкое похлопывание, чтобы создать положительное первое впечатление.
                                                         
                             Слушайте сигналы собаки: Внимательно следите за поведением собаки, реагируйте на ее настроение, и уважайте ее личное пространство.
-                            
+                                                        
                             За более подробной консультацией обращайтесь к специалистам.
                             Дополнительный забавный материал который может ответить на веши вопросы: https://youtu.be/dGLOfSH18ms?si=JXDPUB1_H7Yfbsh4""";
                     InlineKeyboardMarkup buttons = new InlineKeyboardMarkup();
@@ -444,10 +505,10 @@ public class UserRequestServiceImpl implements UserRequestService {
                     String text = """
                             Консультация военных кинологов:
                             https://masterdog.ru/konsultatsiya-kinologa
-                            
+                                                        
                             Консультация Московских кинологов:
                             https://guldog.ru/consultation
-                            
+                                                        
                             Кинологи нашего города:
                             https://k-9.kz/nursultan_kcentre/lp/""";
                     InlineKeyboardMarkup buttons = new InlineKeyboardMarkup();
@@ -457,7 +518,7 @@ public class UserRequestServiceImpl implements UserRequestService {
                 case CLICK_PUPPY: {
                     String text = """
                             Обеспечьте своему щенку безопасность, разнообразные занятия и свое уютное место - и вы создадите ему счастливый и комфортный дом.
-                            
+                                                        
                             Безопасное пространство: Оградите опасные зоны, уберите провода и мелкие предметы, создайте безопасное место для отдыха.
                                                         
                             Игрушки и развлечения: Предоставьте разнообразные игрушки для развития и развлечения щенка, помогая ему снять стресс и скуку.
@@ -524,8 +585,225 @@ public class UserRequestServiceImpl implements UserRequestService {
                     sendMessage2(chatId, text, buttons);
                     break;
                 }
+                case CLICK_CHECK_REPORT:
+
+                    getCheckReport(update);
+
+                    break;
+                case CLICK_OK:
+
+                    checkReportStatusOk();
+
+                    sendMessage(chatId, "отчет принят!");
+
+                    break;
+                case CLICK_NOT_OK:
+
+                    checkReportStatusNotOk();
+
+                    SendMessage sendMessage2 = new SendMessage(chatId, "отчет не принят!");
+
+                    sendMessage2.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReportNotOk());
+
+                    sendMessage(sendMessage2);
+
+                    break;
+                case CLICK_BLOCK_ADOPTER:
+
+                    sendWarningDeleteAdopter(update);
+                    sendMessage(chatId, "Пользователь заблокирован!");
+
+                    break;
+                case CLICK_EXTEND:
+
+                    SendMessage sendMessage3 = new SendMessage(chatId, "На сколько продлить испытательный срок?");
+
+                    sendMessage3.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReportNotOkExtend());
+
+                    sendMessage(sendMessage3);
+
+                    break;
+                case CLICK_EXTEND_14_DAY:
+
+                    sendExtend14Day();
+                    sendMessage(chatId, "Испытательный срок продлен на 14 дней!");
+
+                    break;
+                case CLICK_EXTEND_30_DAY:
+
+                    sendExtend30Day();
+                    sendMessage(chatId, "Испытательный срок продлен на 30 дней!");
+
+                    break;
+                case CLICK_WARNING_REPORT:
+
+                    sendWarningMessage(update);
+                    sendMessage(chatId, "Предупреждение отправлено!");
+
+                    break;
+                case TRIAL_PERIOD_PASSED:
+
+                    TrialPeriodPassed(update);
+                    sendMessage(chatId, "Оповещение, что испытательный срок пройден отправлено!");
+
+                    break;
             }
         }
+    }
+
+    private void sendWarningMessage(Update update) {
+        String textMessage = "Дорогой усыновитель, мы заметили, " +
+                             "что ты заполняешь отчет не так подробно, как необходимо." +
+                             " Пожалуйста, подойди ответственнее к этому занятию. " +
+                             "В противном случае волонтеры приюта будут обязаны самолично " +
+                             "проверять условия содержания животного";
+        User user = checkReport.getTelegramId();
+
+        telegramBot.execute(new SendMessage(user.getTelegramId(), textMessage));
+    }
+
+    private void sendWarningDeleteAdopter(Update update) {
+        String textMessage = "Вы не прошли испытательный срок, " +
+                             "в ближайшее время с Вами свяжется волонтер для " +
+                             "дальнейшего плана действия!" +
+                             "Отныне, Вы персона нон града и доступ в наш приют заблокирован!";
+
+        User guest = checkReport.getTelegramId();
+        UserStatus userStatus = UserStatus.BLOCKED;
+
+        userService.updateStatusUserById(guest.getTelegramId(), userStatus);
+        telegramBot.execute(new SendMessage(guest.getTelegramId(), textMessage));
+    }
+
+
+    private void checkReportStatusOk() {
+
+        User user = checkReport.getTelegramId();
+
+        StatusReport statusReport = StatusReport.ACCEPTED;
+
+        reportUserService.updateStatusReportById(user, statusReport);
+
+    }
+
+    private void checkReportStatusNotOk() {
+
+        User user = checkReport.getTelegramId();
+
+        StatusReport statusReport = StatusReport.NOT_ACCEPTED;
+
+        reportUserService.updateStatusReportById(user, statusReport);
+    }
+
+
+    private void getCheckReport(Update update) {
+
+        Message message = update.callbackQuery().message();
+        long chatId = message.chat().id();
+
+        List<ReportUser> reportList = reportUserService.getAllReport().stream().toList();
+
+        for (ReportUser report : reportList) {
+            if (report.getStatusReport() == StatusReport.DEFAULT) {
+                checkReport = report;
+                break;
+            }
+        }
+        if (checkReport == null) {
+            sendMessage(chatId, "Отчетов нет!");
+            throw new NotFoundReportException("Отчетов нет!");
+        }
+
+        String name = checkReport.getTelegramId().getName();
+        SendMessage sendMessage =
+                new SendMessage(chatId, "Отчет от " + '@' + name +
+                                        ", был отправлен " + checkReport.getDateReport() + " :\n" +
+                                        "отчет: " + checkReport.getReportText() + "\n" +
+                                        "фото: " + checkReport.getPhotoPath());
+
+        sendMessage.replyMarkup(inlineKeyboardMarkupService.createButtonsCheckReport());
+
+        sendMessage(sendMessage);
+    }
+
+    private void sendExtend30Day() {
+
+        User user = checkReport.getTelegramId();
+
+        LocalDate dateEndOfProbation = LocalDate.now().plusMonths(1);
+
+        reportUserService.updateDateEndOfProbationById(user, dateEndOfProbation);
+
+    }
+
+    private void sendExtend14Day() {
+
+        User user = checkReport.getTelegramId();
+
+        LocalDate dateEndOfProbation = LocalDate.now().plusWeeks(2);
+
+        reportUserService.updateDateEndOfProbationById(user, dateEndOfProbation);
+    }
+
+    @Override
+    public boolean checkReport(Update update) {
+
+        if (update.message() == null)
+            return false;
+
+        long chatId = update.message().from().id();
+
+        if (reportStateByChatId.containsKey(chatId)) {
+            takeReportFromUser(update);
+            reportStateByChatId.remove(chatId);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean checkVolunteer(Update update) {
+
+        if (update.message() == null)
+            return false;
+
+        long chatId = update.message().from().id();
+
+
+        if (!stateByChatId.containsKey(chatId))
+            return false;
+
+        String state = stateByChatId.get(chatId);
+        if (state == CLICK_CALL_A_VOLUNTEER) {
+            handleCallVolunteer(update);
+            stateByChatId.remove(chatId);
+            return true;
+        }
+        return false;
+    }
+
+    private void handleCallVolunteer(Update update) {
+        Message message = update.message();
+        Long chatId = message.from().id();
+        long userId = update.message().from().id();
+        String text = message.text();
+        String name = message.from().username();
+
+
+        List<User> users = userService.getAllUsers();
+        List<User> volunteers = new ArrayList<User>();
+        for (User user : users) {
+            if (user.getUserType() == UserType.VOLUNTEER)
+                volunteers.add(user);
+        }
+
+        for (User volunteer : volunteers) {
+            telegramBot.execute(new SendMessage(volunteer.getTelegramId(), "Усыновитель " +
+                    "" + '@' + name + " послал сообщение: " + text));
+        }
+
+        SendMessage message1 = new SendMessage(chatId, "Первый освободившийся волонтёр ответит вам в ближайшее время");
+        telegramBot.execute(message1);
     }
 
     // Отправляет сообщение с встроенной клавиатурой для выбора консультации как обустроить дом для собаки.
@@ -606,6 +884,19 @@ public class UserRequestServiceImpl implements UserRequestService {
         sendMessage(sendMessage);
     }
 
+    private void sendAnimalsToUser(long chatId, List<Animal> animals) {
+        StringBuilder messageText = new StringBuilder();
+        for (Animal animal : animals) {
+            messageText.append("Имя: ").append(animal.getName())
+                    .append(", Цвет: ").append(animal.getColor())
+                    .append(", Пол: ").append(animal.getSex())
+                    .append("\n");
+        }
+        SendMessage message = new SendMessage(chatId, messageText.toString());
+        telegramBot.execute(message);
+    }
+
+
     // Отправляет простое текстовое сообщение в указанный чат
     private void sendMessage(long chatId, String message) {
         SendMessage sendMessage = new SendMessage(chatId, message);
@@ -629,4 +920,18 @@ public class UserRequestServiceImpl implements UserRequestService {
         message.replyMarkup(buttons);
         sendMessage1(message);
     }
+
+    // Отправляет сообщение пользователю об успешном прохождении испытательного срока
+
+    @Override
+    public void TrialPeriodPassed(Update update) {
+        String textMessage = "Поздравляем, вы прошли испытательный срок! " +
+                "Теперь питомец ваш, соблюдайте все рекомендации по уходу. " +
+                "Рады будем видеть вас снова в нашем приюте. ";
+        User user = checkReport.getTelegramId();
+        if (user != null && user.isTrialPeriod()) {
+            telegramBot.execute(new SendMessage(user.getTelegramId(), textMessage));
+        }
+    }
+
 }

@@ -31,7 +31,7 @@ public class InlineKeyboardMarkupServiceImplTest {
         InlineKeyboardMarkupServiceImpl service = new InlineKeyboardMarkupServiceImpl();
         InlineKeyboardMarkup markup = service.createButtonsCatShelter();
         assertNotNull(markup);
-        assertEquals(4,markup.inlineKeyboard().length);
+        assertEquals(5,markup.inlineKeyboard().length);
 
         InlineKeyboardButton button1 = markup.inlineKeyboard()[0][0];
         assertNotNull(button1);
@@ -50,15 +50,15 @@ public class InlineKeyboardMarkupServiceImplTest {
 
         InlineKeyboardButton button4 = markup.inlineKeyboard()[3][0];
         assertNotNull(button4);
-        assertEquals("Позвать волонтера",button4.text());
-        assertEquals(CLICK_CALL_A_VOLUNTEER, button4.callbackData());
+        assertEquals("Посмотреть список всех котиков",button4.text());
+        assertEquals(CLICK_SEE_ALL_ANIMAL_CAT , button4.callbackData());
     }
     @Test
     public void testCreateButtonsDogShelter(){
         InlineKeyboardMarkupServiceImpl service = new InlineKeyboardMarkupServiceImpl();
         InlineKeyboardMarkup markup = service.createButtonsDogShelter();
         assertNotNull(markup);
-        assertEquals(4,markup.inlineKeyboard().length);
+        assertEquals(5,markup.inlineKeyboard().length);
 
         InlineKeyboardButton button1 = markup.inlineKeyboard()[0][0];
         assertNotNull(button1);
@@ -77,8 +77,8 @@ public class InlineKeyboardMarkupServiceImplTest {
 
         InlineKeyboardButton button4 = markup.inlineKeyboard()[3][0];
         assertNotNull(button4);
-        assertEquals("Позвать волонтера",button4.text());
-        assertEquals(CLICK_CALL_A_VOLUNTEER, button4.callbackData());
+        assertEquals("Посмотреть список всех собачек",button4.text());
+        assertEquals(CLICK_SEE_ALL_ANIMAL_DOG, button4.callbackData());
     }
 
     @Test

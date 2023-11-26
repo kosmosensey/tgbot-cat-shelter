@@ -11,7 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
 import pro.sky.tgbotcatshelter.constants.UserType;
-import pro.sky.tgbotcatshelter.repository.ReportRepository;
+import pro.sky.tgbotcatshelter.repository.ReportUserRepository;
 import pro.sky.tgbotcatshelter.repository.UserRepository;
 import pro.sky.tgbotcatshelter.service.UserService;
 
@@ -34,7 +34,7 @@ public class UserRequestServiceImplTest {
     private UserRepository userRepository;
 
     @Mock
-    private ReportRepository reportRepository;
+    private ReportUserRepository reportRepository;
 
     @InjectMocks
     private UserRequestServiceImpl userRequestService;
@@ -69,7 +69,26 @@ public class UserRequestServiceImplTest {
     @Test
     void testSendMessageStartNotNewUser() {
         pro.sky.tgbotcatshelter.entity.User user = new pro.sky.tgbotcatshelter.entity.User(
-                CORRECT_USER_ID, CORRECT_USER_NAME, CORRECT_USER_TYPE,CORRECT_USER_STATUS);
+                CORRECT_USER_ID, CORRECT_USER_NAME, CORRECT_USER_TYPE, CORRECT_USER_STATUS);
+
         when(userService.findUserByTelegramId(1L)).thenReturn(user);
     }
+
+    @Test
+    void testSendMessageStartVolunteer() {
+        pro.sky.tgbotcatshelter.entity.User user = new pro.sky.tgbotcatshelter.entity.User(
+                CORRECT_USER_ID, CORRECT_USER_NAME, CORRECT_USER_TYPE, CORRECT_USER_STATUS);
+
+        when(userService.findUserByTelegramId(1L)).thenReturn(user);
+    }
+
+    @Test
+    void testSendMessageStartBlockedUser() {
+
+        pro.sky.tgbotcatshelter.entity.User user = new pro.sky.tgbotcatshelter.entity.User(
+                CORRECT_USER_ID, CORRECT_USER_NAME, CORRECT_USER_TYPE, CORRECT_USER_STATUS);
+
+        when(userService.findUserByTelegramId(1L)).thenReturn(user);
+    }
+
 }

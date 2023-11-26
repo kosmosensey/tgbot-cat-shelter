@@ -1,10 +1,12 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
+
 import pro.sky.tgbotcatshelter.constants.UserType;
 import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.exception.ShelterNotFoundException;
@@ -13,7 +15,7 @@ import pro.sky.tgbotcatshelter.repository.UserRepository;
 import pro.sky.tgbotcatshelter.service.UserService;
 import pro.sky.tgbotcatshelter.service.ValidationService;
 
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Бизнес-логика по работе с пользователем.
@@ -30,10 +32,21 @@ public class UserServiceImpl implements UserService {
         this.validationService = validationService;
     }
 
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.getAllUsers();
+    }
+
     // Поиск пользователя по идентификатору Telegram
     @Override
     public User findUserByTelegramId(long telegramId) {
         return userRepository.findByTelegramId(telegramId);
+    }
+
+       // Поиск пользователей по типу (усыновитель, волонтер, пользователь, гость)
+    @Override
+    public List<User> getAllUserByType (UserType userType) {
+        return userRepository.getAllUserByType(userType);
     }
 
     // Создание нового пользователя
@@ -48,10 +61,16 @@ public class UserServiceImpl implements UserService {
     public User update(Long id, User user) {
         logger.info("started method update");
         User existingUser = userRepository.findById(id)
-                .orElseThrow(ShelterNotFoundException::new);
+                .orElseThrow(UserNotFoundException::new);
         existingUser.setName(user.getName());
         existingUser.setPhoneNumber(user.getPhoneNumber());
-        existingUser.setTelegramId(id);
+        existingUser.setUserStatus(user.getUserStatus());
+        existingUser.setShelterType(user.getShelterType());
+        existingUser.setAddress(user.getAddress());
+        existingUser.setCarNumber(existingUser.getCarNumber());
+        existingUser.setTrialPeriod(existingUser.isTrialPeriod());
+        existingUser.setUserType(existingUser.getUserType());
+
         return userRepository.save(existingUser);
     }
 
@@ -66,7 +85,8 @@ public class UserServiceImpl implements UserService {
     }
 
     // Получение всех пользователей
-    public Collection<User> getAll() {
+   @Override
+    public List<User> getAll() {
         logger.info("started method getAll");
         return userRepository.findAll();
     }
@@ -88,5 +108,17 @@ public class UserServiceImpl implements UserService {
             throw new ValidationException(user.toString());
         }
         userRepository.save(user);
+    }
+
+    @Override
+    public void editUser(Long userId, User updatedUser) {
+
+    }
+
+    @Override
+    @Transactional
+    public void updateStatusUserById(Long id, UserStatus userStatus) {
+
+        userRepository.updateStatusUserById(id, userStatus);
     }
 }

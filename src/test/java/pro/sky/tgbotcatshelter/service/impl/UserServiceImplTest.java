@@ -1,10 +1,9 @@
 package pro.sky.tgbotcatshelter.service.impl;
 
 
+import jakarta.validation.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import pro.sky.tgbotcatshelter.constants.UserStatus;
@@ -13,25 +12,18 @@ import pro.sky.tgbotcatshelter.entity.User;
 import pro.sky.tgbotcatshelter.repository.UserRepository;
 import pro.sky.tgbotcatshelter.service.ValidationService;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
+    private final ValidationService validationService = mock(ValidationService.class);
+    private final UserRepository userRepository = mock(UserRepository.class);
+    private final UserServiceImpl userService = new UserServiceImpl(userRepository, validationService);
 
     public static final long telegramId = 987654321L;
     public static final String userName = "TestUser";
     public static final UserType userType_Def = UserType.DEFAULT;
     public static final UserStatus userStatus_App = UserStatus.APPROVE;
-
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private ValidationService validationService;
-
-    @InjectMocks
-    private UserServiceImpl userService;
 
     @BeforeEach
     void setUp() {
@@ -78,6 +70,23 @@ class UserServiceImplTest {
 
         verify(validationService, times(1)).validate(user);
         verify(userRepository, times(1)).save(user);
+    }
+    @Test
+    void saveUser_invalidUser_throwValidationException() {
+        User invalidUser = new User(12345L, "", UserType.DEFAULT, UserStatus.BLOCKED);
+        when(validationService.validate(invalidUser)).thenReturn(false);
+
+        assertThrows(ValidationException.class, () -> userService.saveUser(invalidUser));
+    }
+
+    @Test
+    void updateStatusUserById_updateUserStatus() {
+        Long userId = 12345L;
+        UserStatus newUserStatus = UserStatus.BLOCKED;
+
+        userService.updateStatusUserById(userId, newUserStatus);
+
+        verify(userRepository).updateStatusUserById(userId, newUserStatus);
     }
 }
 

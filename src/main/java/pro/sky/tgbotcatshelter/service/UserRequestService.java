@@ -8,13 +8,7 @@ import com.pengrad.telegrambot.model.Update;
 public interface UserRequestService {
 
 
-    /**
-     * Обрабатывает запрос на записи данных юзера.
-     *
-     * @param update Объект, представляющий обновление бота.
-     */
     void updateUser(Update update);
-
 
     /**
      * Обрабатывает запрос на отсылку отчета Юзером и получением отчета в БД.
@@ -38,5 +32,9 @@ public interface UserRequestService {
     void sendMessageStart(Update update);
 
 
+    boolean checkReport(Update update);
 
+    boolean checkVolunteer(Update update);
+
+    void TrialPeriodPassed(Update update);
 }
