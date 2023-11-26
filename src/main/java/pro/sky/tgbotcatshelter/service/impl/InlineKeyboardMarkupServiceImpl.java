@@ -203,7 +203,13 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Проверить отчёты")
                 .callbackData(CLICK_CHECK_REPORT));
-
+        return inlineKeyboardMarkup;
+    }
+    @Override
+    public InlineKeyboardMarkup createButtonTrialPeriodDone() {
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("Сообщение об окончании испытательного срока")
+                .callbackData(TRIAL_PERIOD_PASSED));
         return inlineKeyboardMarkup;
     }
 
@@ -218,6 +224,7 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
 
         return inlineKeyboardMarkup;
     }
+
     @Override
     public InlineKeyboardMarkup createButtonsCheckReportNotOk() {
 
@@ -231,6 +238,7 @@ public class InlineKeyboardMarkupServiceImpl implements InlineKeyboardMarkupServ
 
         return inlineKeyboardMarkup;
     }
+
     @Override
     public InlineKeyboardMarkup createButtonsCheckReportNotOkExtend() {
 

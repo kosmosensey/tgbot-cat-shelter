@@ -594,7 +594,11 @@ public class UserRequestServiceImpl implements UserRequestService {
 
                     checkReportStatusOk();
 
-                    sendMessage(chatId, "отчет принят!");
+                    SendMessage sendMessage4 = new SendMessage(chatId, "отчет принят!");
+
+                    sendMessage4.replyMarkup(inlineKeyboardMarkupService.createButtonTrialPeriodDone());
+
+                    sendMessage(sendMessage4);
 
                     break;
                 case CLICK_NOT_OK:

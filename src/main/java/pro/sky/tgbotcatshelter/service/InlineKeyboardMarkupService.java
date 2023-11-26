@@ -86,6 +86,8 @@ public interface InlineKeyboardMarkupService {
 
     InlineKeyboardMarkup createButtonsVolunteerMenu();
 
+    InlineKeyboardMarkup createButtonTrialPeriodDone();
+
     InlineKeyboardMarkup createButtonsCheckReport();
 
     InlineKeyboardMarkup createButtonsCheckReportNotOk();
